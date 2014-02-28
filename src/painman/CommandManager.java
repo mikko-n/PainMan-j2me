@@ -17,6 +17,8 @@ public class CommandManager {
     private Command cmdSettings;
     private Command cmdFlip;
     private Command cmdAddPoint;
+    private Command cmdAddPointOk;
+    private Command cmdCancel;
     private Command cmdOk;
     
     public CommandManager() {}
@@ -66,7 +68,7 @@ public class CommandManager {
     }
     
     /**
-     * Returns an initialized instance of command used to add data points
+     * Returns an initialized instance of command used to enter add data point mode
      * @return 
      */
     public Command CmdAddPoint() {
@@ -74,6 +76,28 @@ public class CommandManager {
             cmdAddPoint = new Command(PainMan.getUiString("Add"), PainMan.getUiString("Add"), Command.SCREEN, 1);
         }
         return cmdAddPoint;
+    }
+    
+    /**
+     * Returns an initialized instance of command used to confirm data point add
+     * @return 
+     */
+    public Command CmdAddPointOk() {
+        if (cmdAddPointOk == null) {
+            cmdAddPointOk = new Command(PainMan.getUiString("Ok"), PainMan.getUiString("Ok"), Command.OK, 1);
+        }
+        return cmdAddPointOk;
+    }
+    
+    /**
+     * Returns an initialized instance of command used to cancel things
+     * @return 
+     */
+    public Command CmdCancel() {
+        if (cmdCancel == null) {
+            cmdCancel = new Command(PainMan.getUiString("Cancel"), PainMan.getUiString("Cancel"), Command.STOP, 1);
+        }
+        return cmdCancel;
     }
     
     /**

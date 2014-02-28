@@ -12,6 +12,7 @@ import javax.microedition.lcdui.Image;
 import javax.microedition.lcdui.game.Sprite;
 import painman.HeatMapper;
 import painman.PainMan;
+import painman.Properties;
 import painman.data.BodyPart;
 import painman.data.DataManager;
 import painman.data.Point;
@@ -21,42 +22,45 @@ import painman.data.Point;
  * @author NIM
  */
 public abstract class BaseCanvas extends Canvas {
+
     protected PainMan midlet;
     protected Image image = null;
     private BodyPart data;
-    
-    boolean IS_FRONTSIDE = true;
-    protected boolean IS_LEFT;
-    
+//    boolean IS_FRONTSIDE = true;
+//    protected boolean IS_LEFT;
     public boolean ADD_DATAPOINT_MODE = false;
     public boolean NEED_IMAGE_REFRESH = true;
     private int previous_data_size = 0;
-    
+    protected Point newData = null;
     int imageHeight = 0;
     int imageWidth = 0;
-    
     protected int lastPointerX = -1;
     protected int lastPointerY = -1;
-    
     protected int translationX = 0;
-    protected int translationY = 0; 
-    
+    protected int translationY = 0;
     private int SCREEN_ID = -1;
-    
-    public BaseCanvas(PainMan midlet) {
+
+    /**
+     * Constructor
+     *
+     * @param midlet
+     * @param screenID Screen id, see Properties for values
+     */
+    public BaseCanvas(PainMan midlet, int screenID) {
 //        this.data = new Hashtable();
-        this.midlet = midlet;        
+        this.midlet = midlet;
+        this.SCREEN_ID = screenID;
     }
 
     protected void setScreenID(int screenID) {
-        this.SCREEN_ID = screenID;        
+        this.SCREEN_ID = screenID;
         //getData().setBodyPartId(screenID);        
     }
-    
+
     protected int getScreenID() {
         return SCREEN_ID;
     }
-    
+
     /**
      * @return the data
      */
@@ -66,7 +70,7 @@ public abstract class BaseCanvas extends Canvas {
         }
         return data;
     }
-    
+
     /**
      * Refreshes screen data model from RMS
      */
@@ -74,7 +78,7 @@ public abstract class BaseCanvas extends Canvas {
         PainMan.Log(this.getClass(), "refreshData", "Fetching screen datamodel from RMS");
         data = DataManager.getInstance().getScreenData(getScreenID());
     }
-    
+
 //     /** 
 //     * Stores data model to RMS
 //     */
@@ -84,126 +88,119 @@ public abstract class BaseCanvas extends Canvas {
 //            PainMan.Log(this.getClass(),"updateData", "body part data updated, RMS id= "+rmsId);
 //        }
 //    }
-
 //    /**
 //     * @param data the data to set
 //     */
 //    public void setData(BodyPart data) {
 //        this.data = data;
 //    }
-    
     protected void paint(Graphics g) {
         if (NEED_IMAGE_REFRESH) {
             refreshData();
             image = paintBackgroundImage();
             NEED_IMAGE_REFRESH = false;
-        }        
+        }
         this.imageWidth = image.getWidth();
         this.imageHeight = image.getHeight();
-                
-        g.drawImage(image, -translationX, -translationY, g.TOP|g.LEFT);
+
+        g.drawImage(image, -translationX, -translationY, g.TOP | g.LEFT);
     }
-   
+
     /**
      * Turns person around
      */
-    public void flip() {        
-        IS_FRONTSIDE = !IS_FRONTSIDE;
+    public void flip() {
+        Properties.IS_FRONTSIDE = !Properties.IS_FRONTSIDE;
         NEED_IMAGE_REFRESH = true;
-        PainMan.Log(this.getClass(), "flip", "turned around, currently showing "+(IS_FRONTSIDE ? "front": "back") );
+        PainMan.Log(this.getClass(), "flip", "turned around, currently showing " + (Properties.IS_FRONTSIDE ? "front" : "back"));
     }
-    
+
     /**
-     * Paints touch areas to screen & highlights selected, mainly for debugging purposes
+     * Paints touch areas to screen & highlights selected, mainly for debugging
+     * purposes
+     *
      * @param g
      * @param region
-     * @param selected 
+     * @param selected
      */
     protected void paintBodyRegion(Graphics g, Point[] region, boolean selected) {
         if (selected) {
             g.setColor(0xff0000);
         } else {
-            g.setColor(0xaaaaaa);
+            g.setColor(0xcccccc);
         }
         int point1;
         int point2;
-        
+
         for (point1 = 0; point1 < region.length; point1++) {
             point2 = point1 + 1;
             if (point2 == region.length) {
                 point2 = 0;
-            }                          
-            g.drawLine(region[point1].x, region[point1].y, region[point2].x, region[point2].y);            
+            }
+            g.drawLine(region[point1].x, region[point1].y, region[point2].x, region[point2].y);
         }
     }
-    
+
     /**
      * Method to generate heatmap image from data points
+     *
      * @param g
      * @param screenBgImage Image to draw on
      */
-    protected void paintHeatMap(Graphics g, Image screenBgImage) {        
+    protected void paintHeatMap(Graphics g, Image screenBgImage) {
         Hashtable screenData = getScreenSpecificData();
-        if (screenData != null && !screenData.isEmpty() && (screenData.size() != previous_data_size || NEED_IMAGE_REFRESH) ) {
+        if (screenData != null && !screenData.isEmpty() && (screenData.size() != previous_data_size || NEED_IMAGE_REFRESH)) {
             g.drawRGB(HeatMapper.createRGBData(screenData, screenBgImage.getWidth(), screenBgImage.getHeight()), 0, getWidth(), 0, 0, getWidth(), screenBgImage.getHeight(), true);
             previous_data_size = screenData.size();
         }
     }
-    
+
     private Hashtable getScreenSpecificData() {
-        PainMan.Log(this.getClass(), "getScreenSpecificData", "getting data points for screen id "+getScreenID()+", "+(IS_FRONTSIDE ? "front": "back")+"side");
-        
-        Hashtable palautus = new Hashtable();        
+        PainMan.Log(this.getClass(), "getScreenSpecificData", "getting data points for screen id " + getScreenID() + ", " + (Properties.IS_FRONTSIDE ? "front" : "back") + "side");
+
+        Hashtable palautus = new Hashtable();
         Enumeration dataPoints = getData().getPainPoints().elements();
-       
-        while(dataPoints.hasMoreElements()) {
-            Point p = (Point)dataPoints.nextElement();
-            if (p.screenID == SCREEN_ID && p.frontside == IS_FRONTSIDE) {
+
+        while (dataPoints.hasMoreElements()) {
+            Point p = (Point) dataPoints.nextElement();
+            if (p.screenID == SCREEN_ID && p.frontside == Properties.IS_FRONTSIDE) {
                 // lasketaan id uudelleen
-                Integer id = new Integer(p.x+p.y*getWidth());                
+                Integer id = new Integer(p.x + p.y * getWidth());
                 palautus.put(id, p);
             }
-       
+
         }
         return palautus;
     }
-    
+
     protected Image paintBackgroundImage() {
-//        PainMan.Log(this.getClass(), "paintBackgroundImage", "drawing "+(IS_LEFT ? "left" : "right")+" arm, "+(IS_FRONTSIDE ? "palm" : "knuckle"));
+        PainMan.Log(this.getClass(), "paintBackgroundImage", "drawing "+this.getClass().getName()+" from "+(Properties.IS_FRONTSIDE ? "front" : "back"));
         Image bg;
-                
-        if (IS_LEFT) {
-            if (IS_FRONTSIDE) {
-                bg = getLeftFrontImage();
-            } else {
-                bg = getLeftBackImage();
-            }
-            
+
+//        if (IS_LEFT) {
+        if (Properties.IS_FRONTSIDE) {
+            bg = getFrontImage();
         } else {
-            if (IS_FRONTSIDE) {
-                bg = getRightFrontImage();
-            } else {
-                bg = getRightBackImage();
-            }            
+            bg = getBackImage();
         }
-        
+
         // check if display area is taller than bg image
         int imgHeight = bg.getHeight();
         if (imgHeight < getHeight()) {
             imgHeight = getHeight();
         }
-        
+
         Image visibleScreenImage = Image.createImage(getWidth(), imgHeight);
         Graphics g = visibleScreenImage.getGraphics();
 //        PainMan.Log(this.getClass(), "paintBackgroundImage", "background image size: x"+bg.getWidth()+" y"+bg.getHeight());        
-        g.drawRegion(bg, 0, 0, getWidth(), imgHeight, Sprite.TRANS_NONE, 0, 0, g.TOP|g.LEFT);
-        
+        g.drawRegion(bg, 0, 0, getWidth(), imgHeight, Sprite.TRANS_NONE, 0, 0, g.TOP | g.LEFT);
+
         paintHeatMap(g, visibleScreenImage);
         
 //        PainMan.Log(this.getClass(), "paintBackgroundImage", "finished drawing "+(IS_LEFT ? "left" : "right")+" arm image from "+(IS_FRONTSIDE ? "palm" : "knuckle"));
         return visibleScreenImage;
     }
-    
+
     /**
      * Method of handling touch screen press
      *
@@ -212,9 +209,9 @@ public abstract class BaseCanvas extends Canvas {
      */
     protected void pointerPressed(int x, int y) {
         lastPointerX = x;
-        lastPointerY = y;               
+        lastPointerY = y;
     }
-    
+
     /**
      * Method of handling touch screen release
      *
@@ -222,28 +219,43 @@ public abstract class BaseCanvas extends Canvas {
      * @param y touch coordinate y
      */
     protected void pointerReleased(int x, int y) {
-        
+
         if (getData() != null && ADD_DATAPOINT_MODE) {
-            
-            PainMan.Log(this.getClass(), "pointerRelease", "adding data point x"+x+" y"+y+", image offset x"+translationX+" y"+translationY);            
-            int pointX = x+translationX;
-            int pointY = y+translationY;
-            Point newData = new Point(pointX, pointY, 20, SCREEN_ID, IS_FRONTSIDE);
-            Integer id = new Integer(pointX+pointY*getWidth());
-            ADD_DATAPOINT_MODE = !ADD_DATAPOINT_MODE;  
-            NEED_IMAGE_REFRESH = true;
-            
-            midlet.switchDisplay(null, midlet.Forms().getPointEditor(id, newData, true));
-            
+            lastPointerX = x;
+            lastPointerY = y;
+
+//            PainMan.Log(this.getClass(), "pointerRelease", "adding data point x" + x + " y" + y + ", image offset x" + translationX + " y" + translationY);
+            int pointX = x + translationX;
+            int pointY = y + translationY;
+            newData = new Point(pointX, pointY, 20, SCREEN_ID, Properties.IS_FRONTSIDE);
+            repaint();
 //            getData().addPoint(id, newData);            
 //            PainMan.Log(this.getClass(), "pointerRelease", "Data point (id "+id.intValue()+") added: "+newData.toString()+", dataset size: "+getData().getDataSize());
-            
-            
+
+
 //            refreshData();
 //            repaint();
         }
     }
-    
+
+    /**
+     * Callback method for actionManager
+     */
+    public void addDataPointConfirmed() {
+        
+        if (newData != null) {
+            int pointX = lastPointerX + translationX;
+            int pointY = lastPointerY + translationY;
+            Integer id = new Integer(pointX + pointY * getWidth());
+            ADD_DATAPOINT_MODE = !ADD_DATAPOINT_MODE;
+            NEED_IMAGE_REFRESH = true;
+
+            PainMan.Log(this.getClass(), "addDataPointConfirmed", "data point add ok, switching to point editor");
+            
+            midlet.switchDisplay(null, midlet.Forms().getPointEditor(id, newData, true));
+        }
+    }
+
     /**
      * Method of handling touch screen drag
      *
@@ -286,11 +298,17 @@ public abstract class BaseCanvas extends Canvas {
 
         repaint();
     }
-    
+
+    /**
+     * Method for printing headers & info text to screen.
+     */
     protected abstract void paintHeaders(Graphics g);
-    protected abstract Image getLeftFrontImage();
-    protected abstract Image getLeftBackImage();
-    protected abstract Image getRightFrontImage();
-    protected abstract Image getRightBackImage();
-    
+
+    protected Image getFrontImage() {
+        return midlet.ImageUtil().getScreenImg(getScreenID(), true);
+    }
+
+    protected Image getBackImage() {
+        return midlet.ImageUtil().getScreenImg(getScreenID(), false);
+    }
 }

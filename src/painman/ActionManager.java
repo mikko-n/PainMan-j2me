@@ -95,8 +95,36 @@ public class ActionManager implements CommandListener {
         }         
         
         else if ( c == midlet.Commands().CmdAddPoint()) {
-            ((BaseCanvas)d).ADD_DATAPOINT_MODE = true;            
+            ((BaseCanvas)d).ADD_DATAPOINT_MODE = true;
+            d.removeCommand(midlet.Commands().CmdAddPoint());
+            d.removeCommand(midlet.Commands().CmdFlip());
+            d.removeCommand(midlet.Commands().CmdBack());
+            
+            d.addCommand(midlet.Commands().CmdAddPointOk());
+            d.addCommand(midlet.Commands().CmdCancel());
+            ((BaseCanvas)d).repaint();
         } 
+        
+        else if ( c == midlet.Commands().CmdAddPointOk() ) {
+            d.removeCommand(midlet.Commands().CmdAddPointOk());
+            d.removeCommand(midlet.Commands().CmdCancel());
+            
+            d.addCommand(midlet.Commands().CmdAddPoint());
+            d.addCommand(midlet.Commands().CmdFlip());
+            d.addCommand(midlet.Commands().CmdBack());
+            ((BaseCanvas)d).addDataPointConfirmed();
+        }       
+        
+        else if ( c == midlet.Commands().CmdCancel() ) {
+            ((BaseCanvas)d).ADD_DATAPOINT_MODE = false;
+            d.removeCommand(midlet.Commands().CmdAddPointOk());
+            d.removeCommand(midlet.Commands().CmdCancel());
+            
+            d.addCommand(midlet.Commands().CmdAddPoint());
+            d.addCommand(midlet.Commands().CmdFlip());
+            d.addCommand(midlet.Commands().CmdBack());
+            ((BaseCanvas)d).repaint();
+        }
         
         else if ( c == midlet.Commands().CmdFlip()) {            
             ((BaseCanvas)d).flip();            

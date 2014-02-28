@@ -42,45 +42,76 @@ public final class Properties {
     public static String UI_PROPERTIES_FILE_NAME = "/translations/uiTranslation_"+LOCALE+".properties";
 
     /**
-     * Main screen id
+     * Main screen id 0
      */
     public static final int SCREEN_MAINSCREEN = 0;
     
     /**
-     * Head screen id
+     * Head screen id 1
      */
     public static final int SCREEN_HEAD = 1;
     
     /**
-     * Torso screen id
+     * Right upper arm & torso screen id 2
      */
-    public static final int SCREEN_TORSO = 2;
+    public static final int SCREEN_RIGHTARM_TORSO = 2;
     
     /**
-     * Left arm screen id
+     * Left upper arm & torso screen id 3
      */
-    public static final int SCREEN_LEFTARM = 3;
+    public static final int SCREEN_LEFTARM_TORSO = 3;
     
     /**
-     * Right arm screen id
+     * Right hand screen id 4
      */
-    public static final int SCREEN_RIGHTARM = 4;
+    public static final int SCREEN_RIGHTHAND = 4;
     
     /**
-     * Left leg screen id
+     * Left hand screen id 5
      */
-    public static final int SCREEN_LEFTLEG = 5;
+    public static final int SCREEN_LEFTHAND = 5;
     
     /**
-     * Right leg screen id
+     * Right upper leg (thigh & knee) screen id 6
      */
-    public static final int SCREEN_RIGHTLEG = 6;
+    public static final int SCREEN_RIGHTLEG_UPPER = 6;
+    
+    /**
+     * Left upper leg (thigh & knee) screen id 7
+     */
+    public static final int SCREEN_LEFTLEG_UPPER = 7;
+    
+    /**
+     * Right lower leg (knee to toes) screen id 8
+     */
+    public static final int SCREEN_RIGHTLEG_LOWER = 8;
+    
+    /**
+     * Left lower leg (knee to toes) screen id 9
+     */
+    public static final int SCREEN_LEFTLEG_LOWER = 9;
+    
+    /**
+     * Screen background color
+     */
+    public static final int COLOR_BACKGROUND = 0xdddddd;
+    
+    /**
+     * Add datapoint crosshair color
+     */
+    public static final int COLOR_CROSSHAIR = 0xFF0000;
     
     /**
      * System wide settings:
      * [0] Current locale
      */
     public static String[] SETTINGS = {LOCALE};        
+    
+    /**
+     * Global boolean for forms: indicates which side should be visible
+     */
+    public static boolean IS_FRONTSIDE = true;
+    
     
     /**
      * All of the visible strings are stored in the uiTranslation.properties file to allow

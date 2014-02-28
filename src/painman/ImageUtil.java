@@ -13,207 +13,225 @@ import javax.microedition.lcdui.game.Sprite;
  * @author NIM
  */
 public class ImageUtil {
-    Image imgMainFront;
-    Image imgMainBack;
+
+    Image imgMain;
     Image imgFrontFull;
     Image imgBackFull;
-    Image imgLegFront;
-    Image imgLegBack;
+    Image cropImage;
     Image imgArmPalm; // front
     Image imgArmKnuckle; // back
-    
+
+    public Image getScreenImg(int screenID, boolean isFrontSide) {
+        if (screenID == Properties.SCREEN_HEAD) {
+            return getImgHead(isFrontSide);
+        } else if (screenID == Properties.SCREEN_LEFTARM_TORSO) {
+            return getImgLeftUpperArm(isFrontSide);
+        } else if (screenID == Properties.SCREEN_LEFTHAND) {
+            return getImgLeftHand(isFrontSide);
+        } else if (screenID == Properties.SCREEN_LEFTLEG_LOWER) {
+            return getImgLeftLegLower(isFrontSide);
+        } else if (screenID == Properties.SCREEN_LEFTLEG_UPPER) {
+            return getImgLeftLegUpper(isFrontSide);
+        } else if (screenID == Properties.SCREEN_RIGHTARM_TORSO) {
+            return getImgRightUpperArm(isFrontSide);
+        } else if (screenID == Properties.SCREEN_RIGHTHAND) {
+            return getImgRightHand(isFrontSide);
+        } else if (screenID == Properties.SCREEN_RIGHTLEG_LOWER) {
+            return getImgRightLegLower(isFrontSide);
+        } else if (screenID == Properties.SCREEN_RIGHTLEG_UPPER) {
+            return getImgRightLegUpper(isFrontSide);
+        } else if (screenID == Properties.SCREEN_MAINSCREEN) {
+            return getImgMain(isFrontSide);
+        }
+        return null;
+    }
+
     /**
-     * Returns an initialized main screen background image, front side
-     * @return 
+     * Returns an initialized main screen background image
+     *
+     * @param isFrontSide true to return front side image
+     * @return
      */
-    public Image getImgMainFront() {
-        if (imgMainFront == null) {
-            try {
-                imgMainFront = Image.createImage("/images/painman-man-front-320.png");                
-            } catch (java.io.IOException e) {
+    private Image getImgMain(boolean isFrontSide) {
+        try {
+            if (isFrontSide) {
+                imgMain = Image.createImage("/images/painman-man-front-320.png");
+            } else {
+                imgMain = Image.createImage("/images/painman-man-back-320.png");
+            }
+        } catch (java.io.IOException e) {
 //                PainMan.Log(this.getClass(), "getImgMainFront", "Main screen frontside image init failed");
-                e.printStackTrace();                
-            }
-        }         
-        return imgMainFront;
+            e.printStackTrace();
+        }
+        return imgMain;
     }
-    
-    
-    /**
-     * Returns an initialized main screen background image, backside
-     * @return 
-     */
-    public Image getImgMainBack() {        
-        if (imgMainBack == null) {
-            try {
-                imgMainBack = Image.createImage("/images/painman-man-back-320.png");
-            } catch (java.io.IOException e) {
-//                PainMan.Log(this.getClass(), "getImgMainBack", "Main screen backside image init failed");
-                e.printStackTrace();                
-            }
-        }         
-        return imgMainBack;
-    }
-    
-    /**
-     * Returns an initialized left leg image from front view
-     * by cropping full frontal image
-     * @return 
-     */
-    public Image getImgLeftLegFront() {
-        if (imgLegFront == null) {            
-//                imgLegFront = Image.createImage("/images/leg-full-front.png");
-                imgLegFront = Image.createImage(240,320);
-                Graphics legFrontGraphics = imgLegFront.getGraphics();
-                legFrontGraphics.drawImage(getImgFrontFull(), -156, -735, Graphics.TOP|Graphics.LEFT);            
-                PainMan.Log(this.getClass(), "getImgLeftLegFront", "Left leg image init ok");
-            
-        }                 
-//        Image leftLeg = Image.createImage(imgLegFront.getWidth(), imgLegFront.getHeight());
-//        Graphics g = leftLeg.getGraphics();
-//        g.drawRegion(imgLegFront, 0, 0, leftLeg.getWidth(), leftLeg.getHeight(), Sprite.TRANS_NONE, 0, 0, g.TOP|g.LEFT);
-        return imgLegFront;
-    }
-    
+
     /**
      * Returns an initialized full body image, front view
-     * @return 
+     *
+     * @return
      */
-    private Image getImgFrontFull () {
+    private Image getImgFrontFull() {
         if (imgFrontFull == null) {
             try {
+                // discard back image to save memory
+                imgBackFull = null;
                 imgFrontFull = Image.createImage("/images/painman-man-front.png");
 //                PainMan.Log(this.getClass(), "getImgFrontFull", "front image size: x"+imgFrontFull.getWidth()+" y"+imgFrontFull.getHeight());
             } catch (java.io.IOException e) {
 //                PainMan.Log(this.getClass(), "getImgFrontFull", "full front image init failed");
-                e.printStackTrace();                
+                e.printStackTrace();
             }
         }
         return imgFrontFull;
     }
-    /**
-     * Returns an initialized left leg image from back view
-     * @return 
-     */
-    public Image getImgLeftLegBack() {
-        if (imgLegBack == null) {
-            try {
-                imgLegBack = Image.createImage("/images/leg-full-back.png");
-            } catch (java.io.IOException e) {
-//                PainMan.Log(this.getClass(), "getImgLeftLegBack", "Left leg back image init failed");
-                e.printStackTrace();                
-            }
-        }                 
-        return imgLegBack;
-    }
-    
-    /**
-     * Returns an initialized left arm image from palm side view
-     * @return 
-     */
-    public Image getImgLeftArmPalm() {
-        if (imgArmPalm == null) {
-            try {
-                imgArmPalm = Image.createImage("/images/arm-full-palm.png");
-            } catch (java.io.IOException e) {
-//                PainMan.Log(this.getClass(), "getImgLeftArmPalm", "Left arm palm image init failed");
-                e.printStackTrace();                
-            }
-        }                 
 
-        return imgArmPalm;
+    /**
+     * Returns an initialized full body image, back view
+     *
+     * @return
+     */
+    private Image getImgBackFull() {
+        if (imgBackFull == null) {
+            try {
+                // discard front image to save memory
+                imgFrontFull = null;
+                imgBackFull = Image.createImage("/images/painman-man-back.png");
+//                PainMan.Log(this.getClass(), "getImgFrontFull", "front image size: x"+imgFrontFull.getWidth()+" y"+imgFrontFull.getHeight());
+            } catch (java.io.IOException e) {
+//                PainMan.Log(this.getClass(), "getImgFrontFull", "full front image init failed");
+                e.printStackTrace();
+            }
+        }
+        return imgBackFull;
+    }
+
+    /**
+     * Returns screen sized image filled with background color
+     *
+     * @return
+     */
+    private Image getCropImage() {
+        if (cropImage == null) {
+            cropImage = Image.createImage(240, 320);
+            Graphics g = cropImage.getGraphics();
+            g.setColor(Properties.COLOR_BACKGROUND);
+            g.fillRect(0, 0, cropImage.getWidth(), cropImage.getHeight());
+        }
+        return cropImage;
+    }
+
+    /**
+     * Sets cropped image contents
+     *
+     * @param x
+     * @param y
+     * @param frontSide
+     */
+    private void setCropImage(int x, int y, boolean frontSide) {
+        Graphics g = getCropImage().getGraphics();
+        g.drawImage((frontSide ? getImgFrontFull() : getImgBackFull()), x, y, Graphics.TOP | Graphics.LEFT);
+    }
+
+    /**
+     * Returns an initialized head and neck image
+     *
+     * @return
+     */
+    private Image getImgHead(boolean isFrontside) {
+        setCropImage(-278, 0, isFrontside);
+        return cropImage;
+    }
+
+    /**
+     * Returns an initialized lower left leg image by cropping
+     * full frontal image
+     *
+     * @return
+     */
+    private Image getImgLeftLegLower(boolean isFrontside) {
+        setCropImage(-156, -735, isFrontside);
+        PainMan.Log(this.getClass(), "getImgLeftLegLower", "Left lower leg "+(isFrontside ? "front" : "back")+" image init ok");
+        return cropImage;
+    }
+
+    /**
+     * Returns an initialized lower right leg image
+     *
+     * @return
+     */
+    private Image getImgRightLegLower(boolean isFrontside) {
+        setCropImage(-399, -735, isFrontside);
+        PainMan.Log(this.getClass(), "getImgRightLegLower", "Right lower leg "+(isFrontside ? "front" : "back")+" image init ok");
+        return cropImage;
     }
     
     /**
-     * Returns an initialized left arm image from knuckle side view
+     * Returns an initialized right upper leg image
+     * @param isFrontside true for front side image
      * @return 
      */
-    public Image getImgLeftArmKnuckle() {
-        if (imgArmKnuckle == null) {
-            try {
-                imgArmKnuckle = Image.createImage("/images/arm-full-knuckle.png");
-            } catch (java.io.IOException e) {
-//                PainMan.Log(this.getClass(), "getImgLeftArmKnuckle", "Left arm knuckle image init failed");
-                e.printStackTrace();                
-            }
-        }                 
-        return imgArmKnuckle;
+    private Image getImgRightLegUpper(boolean isFrontside) {
+        setCropImage(-399, -445, isFrontside);
+        PainMan.Log(this.getClass(), "getImgRightLegUpper", "Right upper leg "+(isFrontside ? "front" : "back")+" image init ok");
+        return cropImage;
+    }
+
+    /**
+     * Returns an initialized left side torso & upper arm image
+     * view
+     *
+     * @return
+     */
+    private Image getImgLeftUpperArm(boolean isFrontside) {
+        setCropImage(-159, -171, isFrontside);
+        PainMan.Log(this.getClass(), "getImgLeftUpperArm", "left side torso & upper arm image from "+(isFrontside ? "front" : "back"));
+        return cropImage;
+    }
+
+    /**
+     * Returns an initialized image of left side hand
+     *
+     * @return
+     */
+    private Image getImgLeftHand(boolean isFrontside) {
+        setCropImage(0, -236, isFrontside);
+        PainMan.Log(this.getClass(), "getImgLeftHand", "left side hand image from "+(isFrontside ? "front" : "back"));
+        return cropImage;
+    }
+
+
+    /**
+     * Returns an initialized image of left side upper leg
+     * @param isFrontside
+     * @return 
+     */
+    private Image getImgLeftLegUpper(boolean isFrontside) {
+        setCropImage(-159, -445, isFrontside);
+        PainMan.Log(this.getClass(), "getImgLeftLegUpper", "left side upper leg image from "+(isFrontside ? "front" : "back"));
+        return cropImage;
     }
     
     /**
-     * Returns an initialized right leg image from front view
+     * Returns an initialized image of right side upper arm
+     * @param isFrontside true for front side image
      * @return 
      */
-    public Image getImgRightLegFront() {
-        if (imgLegFront == null) {
-            try {
-                imgLegFront = Image.createImage("/images/leg-full-front.png");
-            } catch (java.io.IOException e) {
-//                PainMan.Log(this.getClass(), "getImgRightLegFront", "Right leg image init failed");
-                e.printStackTrace();                
-            }
-        }                 
-        Image rightLeg = Image.createImage(imgLegFront.getWidth(), imgLegFront.getHeight());
-        Graphics g = rightLeg.getGraphics();
-        g.drawRegion(imgLegFront, 0, 0, rightLeg.getWidth(), rightLeg.getHeight(), Sprite.TRANS_MIRROR, 0, 0, g.TOP|g.LEFT);
-        return rightLeg;
+    private Image getImgRightUpperArm(boolean isFrontside) {
+        setCropImage(-399, -171, isFrontside);
+        PainMan.Log(this.getClass(), "getImgRightUpperArm", "right side torso & upper arm image from "+(isFrontside ? "front" : "back"));
+        return cropImage;
     }
     
     /**
-     * Returns an initialized right leg image from back view
+     * Returns an initialized image of right side hand
+     * @param isFrontside true for front side image
      * @return 
      */
-    public Image getImgRightLegBack() {
-        if (imgLegBack == null) {
-            try {
-                imgLegBack = Image.createImage("/images/leg-full-back.png");
-            } catch (java.io.IOException e) {
-//                PainMan.Log(this.getClass(), "getImgRightLegBack", "Right leg back image init failed");
-                e.printStackTrace();                
-            }
-        }                 
-        Image rightLeg = Image.createImage(imgLegBack.getWidth(), imgLegBack.getHeight());
-        Graphics g = rightLeg.getGraphics();
-        g.drawRegion(imgLegBack, 0, 0, rightLeg.getWidth(), rightLeg.getHeight(), Sprite.TRANS_MIRROR, 0, 0, g.TOP|g.LEFT);
-        return rightLeg;
+    private Image getImgRightHand(boolean isFrontside) {
+        setCropImage(-569, -262, isFrontside);
+        PainMan.Log(this.getClass(), "getImgRightHand", "right side hand image from "+(isFrontside ? "front" : "back"));
+        return cropImage;
     }
-    
-    /**
-     * Returns an initialized right arm image from palm view
-     * @return 
-     */
-    public Image getImgRightArmPalm() {
-        if (imgArmPalm == null) {
-            try {
-                imgArmPalm = Image.createImage("/images/arm-full-palm.png");
-            } catch (java.io.IOException e) {
-//                PainMan.Log(this.getClass(), "getImgRightArmPalm", "Right arm palm side image init failed");
-                e.printStackTrace();                
-            }
-        }                 
-        Image rightArm = Image.createImage(imgArmPalm.getWidth(), imgArmPalm.getHeight());
-        Graphics g = rightArm.getGraphics();
-        g.drawRegion(imgArmPalm, 0, 0, rightArm.getWidth(), rightArm.getHeight(), Sprite.TRANS_MIRROR, 0, 0, g.TOP|g.LEFT);
-        return rightArm;
-    }
-    
-    /**
-     * Returns an initialized right arm image from knuckle side view
-     * @return 
-     */
-    public Image getImgRightArmKnuckle() {
-        if (imgArmKnuckle == null) {
-            try {
-                imgArmKnuckle = Image.createImage("/images/arm-full-knuckle.png");
-            } catch (java.io.IOException e) {
-//                PainMan.Log(this.getClass(), "getImgRightArmKnuckle", "Right arm knuckle side image init failed");
-                e.printStackTrace();                
-            }
-        }                 
-        Image rightArm = Image.createImage(imgArmKnuckle.getWidth(), imgArmKnuckle.getHeight());
-        Graphics g = rightArm.getGraphics();
-        g.drawRegion(imgArmKnuckle, 0, 0, rightArm.getWidth(), rightArm.getHeight(), Sprite.TRANS_MIRROR, 0, 0, g.TOP|g.LEFT);
-        return rightArm;
-    }
-  
+   
 }

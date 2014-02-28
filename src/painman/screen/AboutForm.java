@@ -40,5 +40,8 @@ public class AboutForm extends Form {
      * (ed. Paul Heckbert, Academic Press, p. 24-46, 1994)
      * Source code related to article is made publicly available without any licencing information at
      * http://tog.acm.org/resources/GraphicsGems/gemsiv/ptpoly_haines/ptinpoly.c
+     * 
+     * All images in this software are made by author with open source tools
+     * Gimp 2.8.4, Blender 2.6.9 & MakeHuman 1.0 Alpha 8 RC
      */
 }
