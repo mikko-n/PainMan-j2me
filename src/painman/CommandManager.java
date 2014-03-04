@@ -15,7 +15,7 @@ public class CommandManager {
     private Command cmdExit;
     private Command cmdBack;
     private Command cmdSettings;
-    private Command cmdFlip;
+//    private Command cmdFlip;
     private Command cmdAddPoint;
     private Command cmdAddPointOk;
     private Command cmdCancel;
@@ -34,6 +34,7 @@ public class CommandManager {
         }
         return cmdExit;
     }    
+    
 
     /**
      * Returns an initialized instance of cmdBack component
@@ -43,7 +44,7 @@ public class CommandManager {
         if (cmdBack == null) {
             cmdBack = new Command(PainMan.getUiString("Back"), PainMan.getUiString("Back"), Command.BACK, 1);
         }
-        return cmdBack;
+        return cmdBack;        
     }
     
     /**
@@ -56,16 +57,16 @@ public class CommandManager {
         }
         return cmdSettings;
     }
-    /**
-     * Returns an initialized instance of cmdFlip component
-     * @return 
-     */
-    public Command CmdFlip() {
-        if (cmdFlip == null) {
-            cmdFlip = new Command(PainMan.getUiString("Flip"), PainMan.getUiString("Flip"), Command.SCREEN, 1);
-        }
-        return cmdFlip;
-    }
+//    /**
+//     * Returns an initialized instance of cmdFlip component
+//     * @return 
+//     */
+//    public Command CmdFlip() {
+//        if (cmdFlip == null) {
+//            cmdFlip = new Command(PainMan.getUiString("Flip"), PainMan.getUiString("Flip"), Command.SCREEN, 1);
+//        }
+//        return cmdFlip;
+//    }
     
     /**
      * Returns an initialized instance of command used to enter add data point mode

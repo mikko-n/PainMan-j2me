@@ -6,7 +6,9 @@ package painman.screen;
 
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.Vector;
 import javax.microedition.lcdui.Canvas;
+import javax.microedition.lcdui.Displayable;
 import javax.microedition.lcdui.Graphics;
 import javax.microedition.lcdui.Image;
 import javax.microedition.lcdui.game.Sprite;
@@ -21,23 +23,35 @@ import painman.data.Point;
  *
  * @author NIM
  */
-public abstract class BaseCanvas extends Canvas {
+public abstract class BaseCanvas extends Canvas implements Button.ButtonListener {
 
     protected PainMan midlet;
     protected Image image = null;
     private BodyPart data;
+    private Vector buttons;
+    private CanvasButtonListener listener;
+    
 //    boolean IS_FRONTSIDE = true;
 //    protected boolean IS_LEFT;
     public boolean ADD_DATAPOINT_MODE = false;
     public boolean NEED_IMAGE_REFRESH = true;
+    public boolean REPAINT_CALLED = false;
+    
     private int previous_data_size = 0;
     protected Point newData = null;
     int imageHeight = 0;
     int imageWidth = 0;
+    
     protected int lastPointerX = -1;
     protected int lastPointerY = -1;
     protected int translationX = 0;
     protected int translationY = 0;
+    
+    // gesture variables
+    protected int pointerStartX = -1;
+    protected int pointerStartY = -1;
+    protected long gestureStartMS = 0;
+    
     private int SCREEN_ID = -1;
 
     /**
@@ -61,6 +75,10 @@ public abstract class BaseCanvas extends Canvas {
         return SCREEN_ID;
     }
 
+    public void setButtonListener(CanvasButtonListener listener) {
+        this.listener = listener;
+    }
+    
     /**
      * @return the data
      */
@@ -69,6 +87,13 @@ public abstract class BaseCanvas extends Canvas {
             data = DataManager.getInstance().getScreenData(getScreenID());
         }
         return data;
+    }
+    
+    public void addButton(Button button) {        
+        if (this.buttons == null) {
+            this.buttons = new Vector();
+        }
+        buttons.addElement(button);
     }
 
     /**
@@ -104,8 +129,21 @@ public abstract class BaseCanvas extends Canvas {
         this.imageHeight = image.getHeight();
 
         g.drawImage(image, -translationX, -translationY, g.TOP | g.LEFT);
+        paintHeaders(g);
+        paintButtons(g);
+        
+        REPAINT_CALLED = false;
     }
 
+    private void paintButtons(Graphics g) {
+        if (buttons != null) {
+            Enumeration btns = buttons.elements();
+            while (btns.hasMoreElements()) {
+                Button b = (Button) btns.nextElement();
+                b.paint(g, this.getWidth(), this.getHeight());
+            }
+        }
+    }
     /**
      * Turns person around
      */
@@ -192,8 +230,11 @@ public abstract class BaseCanvas extends Canvas {
 
         Image visibleScreenImage = Image.createImage(getWidth(), imgHeight);
         Graphics g = visibleScreenImage.getGraphics();
+        g.setColor(Properties.COLOR_BACKGROUND);
+        g.fillRect(0, 0, visibleScreenImage.getWidth(), visibleScreenImage.getHeight());        
+        
 //        PainMan.Log(this.getClass(), "paintBackgroundImage", "background image size: x"+bg.getWidth()+" y"+bg.getHeight());        
-        g.drawRegion(bg, 0, 0, getWidth(), imgHeight, Sprite.TRANS_NONE, 0, 0, g.TOP | g.LEFT);
+        g.drawRegion(bg, 0, 0, bg.getWidth(), bg.getHeight(), Sprite.TRANS_NONE, 0,0, g.TOP|g.LEFT);
 
         paintHeatMap(g, visibleScreenImage);
         
@@ -208,8 +249,14 @@ public abstract class BaseCanvas extends Canvas {
      * @param y touch coordinate y
      */
     protected void pointerPressed(int x, int y) {
-        lastPointerX = x;
-        lastPointerY = y;
+        Enumeration btns = buttons.elements();
+        while (btns.hasMoreElements()) {
+            ((Button)btns.nextElement()).pointerPressed(x, y);
+        }
+        
+        lastPointerX = pointerStartX = x;
+        lastPointerY = pointerStartY = y;
+        gestureStartMS = System.currentTimeMillis();
     }
 
     /**
@@ -228,7 +275,7 @@ public abstract class BaseCanvas extends Canvas {
             int pointX = x + translationX;
             int pointY = y + translationY;
             newData = new Point(pointX, pointY, 20, SCREEN_ID, Properties.IS_FRONTSIDE);
-            repaint();
+            doRepaint();
 //            getData().addPoint(id, newData);            
 //            PainMan.Log(this.getClass(), "pointerRelease", "Data point (id "+id.intValue()+") added: "+newData.toString()+", dataset size: "+getData().getDataSize());
 
@@ -236,8 +283,43 @@ public abstract class BaseCanvas extends Canvas {
 //            refreshData();
 //            repaint();
         }
+        
+        // check if user wants to switch direction
+        long gestureTime = (System.currentTimeMillis() - gestureStartMS);
+        PainMan.Log(this.getClass(), "pointerReleased", "pointer moved "+ Math.abs(pointerStartX-x)+" px in "+gestureTime+" ms");
+        
+        // user has swiped across 2/3 screen in less than ~300 ms, 
+        // that counts to rotate gesture
+        if (Math.abs(pointerStartX-x) > (getWidth()/3)*2) {
+            if ( gestureTime < Properties.GESTURE_ROTATE_INTERVAL_MS) {
+                flip();
+                doRepaint();
+            }
+        }
+        
+        // buttons
+        Enumeration btns = buttons.elements();
+        while (btns.hasMoreElements()) {
+            ((Button)btns.nextElement()).pointerReleased(x, y);
+        }
+        
+        
+        // reset gesture variables    
+        gestureStartMS = 0;
+        pointerStartX = pointerStartY = -1;
     }
 
+    /**
+     * Call this in child classes instead of Canvas.repaint() method
+     */
+    public void doRepaint() {
+        
+        if (!REPAINT_CALLED) {
+            REPAINT_CALLED = true;
+            repaint();
+        }        
+    }
+    
     /**
      * Callback method for actionManager
      */
@@ -264,7 +346,11 @@ public abstract class BaseCanvas extends Canvas {
      */
     protected void pointerDragged(int x, int y) {
         scrollImage(lastPointerX - x, lastPointerY - y);
-
+        Enumeration btns = buttons.elements();
+        while (btns.hasMoreElements()) {
+            ((Button)btns.nextElement()).pointerDragged(x, y);
+        }
+        
         lastPointerX = x;
         lastPointerY = y;
     }
@@ -296,6 +382,7 @@ public abstract class BaseCanvas extends Canvas {
             }
         }
 
+        // no doRepaint() call here, causes problems to region identification
         repaint();
     }
 
@@ -304,11 +391,31 @@ public abstract class BaseCanvas extends Canvas {
      */
     protected abstract void paintHeaders(Graphics g);
 
+//    /**
+//     * Method for printing ui buttons
+//     * @param g 
+//     */
+//    protected abstract void paintButtons(Graphics g);
+//    
     protected Image getFrontImage() {
         return midlet.ImageUtil().getScreenImg(getScreenID(), true);
     }
 
     protected Image getBackImage() {
         return midlet.ImageUtil().getScreenImg(getScreenID(), false);
+    }
+
+    /**
+     * Button.ButtonListener event implementation.
+     * Relays event to form's buttonClickListener
+     * @param button 
+     */
+    public void buttonClicked(Button button) {
+//        PainMan.Log(this.getClass(), "buttonClicked", "Button "+button.getID()+" clicked");
+        listener.buttonAction(button, this);
+    }
+    
+    public interface CanvasButtonListener {
+        void buttonAction(Button button, Displayable d);
     }
 }

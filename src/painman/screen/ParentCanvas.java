@@ -9,6 +9,7 @@ import java.util.Hashtable;
 import javax.microedition.lcdui.Graphics;
 import javax.microedition.lcdui.Image;
 import javax.microedition.lcdui.game.Sprite;
+import painman.ImageUtil;
 import painman.PainMan;
 import painman.data.Point;
 import painman.Properties;
@@ -25,7 +26,7 @@ public class ParentCanvas extends BaseCanvas {
     
     private int selection = 0;
     private Hashtable clickableRegions;
-    
+    private int xOffset, yOffset;    
     /**
      * ParentCanvas extends BaseCanvas and is used when screen needs
      * to have user-clickable regions for accessing subcanvases. 
@@ -36,17 +37,28 @@ public class ParentCanvas extends BaseCanvas {
      * @param screenID 
      */
     public ParentCanvas(PainMan midlet, int screenID) {
-        super(midlet, screenID);
-        clickableRegions = new Hashtable();
-        clickableRegions.put(new Integer(Properties.SCREEN_HEAD), head);
-        clickableRegions.put(new Integer(Properties.SCREEN_RIGHTARM_TORSO), rightArm_upper);
-        clickableRegions.put(new Integer(Properties.SCREEN_RIGHTHAND), rightArm_lower);
-        clickableRegions.put(new Integer(Properties.SCREEN_RIGHTLEG_UPPER), rightLeg_upper);
-        clickableRegions.put(new Integer(Properties.SCREEN_RIGHTLEG_LOWER), rightLeg_lower);
-        clickableRegions.put(new Integer(Properties.SCREEN_LEFTARM_TORSO), leftArm_upper);
-        clickableRegions.put(new Integer(Properties.SCREEN_LEFTHAND), leftArm_lower);
-        clickableRegions.put(new Integer(Properties.SCREEN_LEFTLEG_UPPER), leftLeg_upper);
-        clickableRegions.put(new Integer(Properties.SCREEN_LEFTLEG_LOWER), leftLeg_lower);
+        super(midlet, screenID);        
+    }    
+    
+    private Hashtable getClickableRegions() {
+        if (clickableRegions == null) {
+            clickableRegions = new Hashtable();
+
+            clickableRegions.clear();
+            clickableRegions.put(new Integer(Properties.SCREEN_HEAD), head());
+            clickableRegions.put(new Integer(Properties.SCREEN_RIGHTARM_TORSO), rightArm_upper());
+            clickableRegions.put(new Integer(Properties.SCREEN_RIGHTHAND), rightArm_lower());
+            clickableRegions.put(new Integer(Properties.SCREEN_RIGHTLEG_UPPER), rightLeg_upper());
+            clickableRegions.put(new Integer(Properties.SCREEN_RIGHTLEG_LOWER), rightLeg_lower());
+            clickableRegions.put(new Integer(Properties.SCREEN_LEFTARM_TORSO), leftArm_upper());
+            clickableRegions.put(new Integer(Properties.SCREEN_LEFTHAND), leftArm_lower());
+            clickableRegions.put(new Integer(Properties.SCREEN_LEFTLEG_UPPER), leftLeg_upper());
+            clickableRegions.put(new Integer(Properties.SCREEN_LEFTLEG_LOWER), leftLeg_lower());
+            PainMan.Log(this.getClass(), "getClickableRegions", "clickable regions set, xOffset="+xOffset+" yOffset="+yOffset
+                    +"\n  Head[0] x"+head()[0].x+"y"+head()[0].y);
+        }
+        
+        return clickableRegions;
     }    
       
 // <editor-fold defaultstate="collapsed" desc=" Clickable region definitions, points arranged clockwise."> 
@@ -54,124 +66,142 @@ public class ParentCanvas extends BaseCanvas {
     /**
      * Clickable region definition for head and neck     
      */
-    private Point[] head = {
-        new Point(96, 55),
-        new Point(108, 43),
-        new Point(101, 28),
-        new Point(107, 2),
-        new Point(128, 2),
-        new Point(134, 28),
-        new Point(129, 43),
-        new Point(140, 55),
-        new Point(118, 58)            
-    };
+    private Point[] head() {
+        return new Point[] {
+        new Point(96+xOffset, 55+yOffset),
+        new Point(108+xOffset, 43+yOffset),
+        new Point(101+xOffset, 28+yOffset),
+        new Point(107+xOffset, 2+yOffset),
+        new Point(128+xOffset, 2+yOffset),
+        new Point(134+xOffset, 28+yOffset),
+        new Point(129+xOffset, 43+yOffset),
+        new Point(140+xOffset, 55+yOffset),
+        new Point(118+xOffset, 58+yOffset)            
+        };
+    }
     
     /**
      * Clickable region definition for upper arm (from shoulder to elbow)
      * and half of the torso positioned in right side of the screen.
      */
-    private Point[] rightArm_upper = {
-        new Point(144, 55),
-        new Point(120, 59),
-        new Point(120, 135),
-        new Point(155, 133),
-        new Point(152, 91),
-        new Point(169, 104),
-        new Point(185, 89),
-        new Point(158, 56)        
-    };
+    private Point[] rightArm_upper() {
+        return new Point[]{
+            new Point(144 + xOffset, 55 + yOffset),
+            new Point(120 + xOffset, 59 + yOffset),
+            new Point(120 + xOffset, 135 + yOffset),
+            new Point(155 + xOffset, 133 + yOffset),
+            new Point(152 + xOffset, 91 + yOffset),
+            new Point(169 + xOffset, 104 + yOffset),
+            new Point(185 + xOffset, 89 + yOffset),
+            new Point(158 + xOffset, 56 + yOffset)
+        };
+    }
     
     /**
-     * Clickable region definition for lower arm (from elbow to fingertips) 
+     * Clickable region definition for lower arm (from elbow to fingertips)
      * positioned in right side of the screen.
      */
-    private Point[] rightArm_lower = {
-        new Point(169, 104),
-        new Point(201, 134),
-        new Point(221, 161),
-        new Point(240, 146),
-        new Point(232, 126),
-        new Point(210, 120),
-        new Point(185, 89)
-    };
+    private Point[] rightArm_lower() {
+        return new Point[]{
+            new Point(169+ xOffset, 104+ yOffset),
+            new Point(201+ xOffset, 134+ yOffset),
+            new Point(221+ xOffset, 161+ yOffset),
+            new Point(240+ xOffset, 146+ yOffset),
+            new Point(232+ xOffset, 126+ yOffset),
+            new Point(210+ xOffset, 120+ yOffset),
+            new Point(185+ xOffset, 89+ yOffset)
+        };
+    }
     
     /**
-     * Clickable region definition for upper arm (from shoulder to elbow)
-     * and half of the torso positioned in left side of the screen.
+     * Clickable region definition for upper arm (from shoulder to elbow) and
+     * half of the torso positioned in left side of the screen.
      */
-    private Point[] leftArm_upper = {
-        new Point(95, 55),
-        new Point(120, 59),
-        new Point(120, 135),
-        new Point(84, 133),
-        new Point(87, 91),
-        new Point(70, 104),
-        new Point(54, 89),
-        new Point(81, 56)
-    };    
+    private Point[] leftArm_upper() {
+        return new Point[]{
+            new Point(95 + xOffset, 55 + yOffset),
+            new Point(120 + xOffset, 59 + yOffset),
+            new Point(120 + xOffset, 135 + yOffset),
+            new Point(84 + xOffset, 133 + yOffset),
+            new Point(87 + xOffset, 91 + yOffset),
+            new Point(70 + xOffset, 104 + yOffset),
+            new Point(54 + xOffset, 89 + yOffset),
+            new Point(81 + xOffset, 56 + yOffset)
+        };
+    }
     
     /**
-     * Clickable region definition for lower arm (from elbow to fingertips) 
+     * Clickable region definition for lower arm (from elbow to fingertips)
      * positioned in left side of the screen.
      */
-    private Point[] leftArm_lower = {
-        new Point(70, 104),
-        new Point(38, 134),
-        new Point(18, 161),
-        new Point(0, 146),
-        new Point(7, 126),
-        new Point(29, 120),
-        new Point(54, 89)
-    };
+    private Point[] leftArm_lower() {
+        return new Point[]{
+            new Point(70 + xOffset, 104 + yOffset),
+            new Point(38 + xOffset, 134 + yOffset),
+            new Point(18 + xOffset, 161 + yOffset),
+            new Point(0 + xOffset, 146 + yOffset),
+            new Point(7 + xOffset, 126 + yOffset),
+            new Point(29 + xOffset, 120 + yOffset),
+            new Point(54 + xOffset, 89 + yOffset)
+        };
+    }
     
     /**
      * Clickable region definition for upper part of the leg (from hip to knee)
      * positioned in right side of the screen.
      */
-    private Point[] rightLeg_upper = {
-        new Point(155, 133),
-        new Point(120, 135),
-        new Point(120, 165),
-        new Point(137, 226),
-        new Point(161, 226)
-    };    
+    private Point[] rightLeg_upper() {
+        return new Point[]{
+            new Point(155 + xOffset, 133 + yOffset),
+            new Point(120 + xOffset, 135 + yOffset),
+            new Point(120 + xOffset, 165 + yOffset),
+            new Point(137 + xOffset, 226 + yOffset),
+            new Point(161 + xOffset, 226 + yOffset)
+        };
+    }
     
     
     /**
      * Clickable region definition for lower part of the leg (from knee to toes)
      * positioned in right side of the screen.
      */
-    private Point[] rightLeg_lower = {
-        new Point(161, 226),
-        new Point(137, 226),
-        new Point(146, 311),
-        new Point(172, 311),
-        new Point(163, 278)            
-    };
+    private Point[] rightLeg_lower() {
+        return new Point[]{
+            new Point(161 + xOffset, 226 + yOffset),
+            new Point(137 + xOffset, 226 + yOffset),
+            new Point(146 + xOffset, 311 + yOffset),
+            new Point(172 + xOffset, 311 + yOffset),
+            new Point(163 + xOffset, 278 + yOffset)
+        };
+    }
     
     /**
      * Clickable region definition for upper part of the leg (from hip to knee)
      * positioned in left side of the screen.
      */
-    private Point[] leftLeg_upper = {
-        new Point(84, 133),
-        new Point(120, 135),
-        new Point(120, 165),
-        new Point(102, 226),
-        new Point(78, 226)
-    };
+    private Point[] leftLeg_upper() {
+        return new Point[]{
+            new Point(84 + xOffset, 133 + yOffset),
+            new Point(120 + xOffset, 135 + yOffset),
+            new Point(120 + xOffset, 165 + yOffset),
+            new Point(102 + xOffset, 226 + yOffset),
+            new Point(78 + xOffset, 226 + yOffset)
+        };
+    }
     
     /**
      * Clickable region definition for lower part of the leg (from knee to toes)
      * positioned in left side of the screen.
      */
-    private Point[] leftLeg_lower = {
-        new Point(78, 226),
-        new Point(102, 226),
-        new Point(93, 311),
-        new Point(67, 311),
-        new Point(76, 278)
-    };
+    private Point[] leftLeg_lower() {
+        return new Point[]{
+            new Point(78 + xOffset, 226 + yOffset),
+            new Point(102 + xOffset, 226 + yOffset),
+            new Point(93 + xOffset, 311 + yOffset),
+            new Point(67 + xOffset, 311 + yOffset),
+            new Point(76 + xOffset, 278 + yOffset)
+        };
+    }
       
  // </editor-fold>
     
@@ -179,8 +209,7 @@ public class ParentCanvas extends BaseCanvas {
         
         NEED_IMAGE_REFRESH = false;
         image = printMainScreen();        
-        super.paint(g);
-        paintHeaders(g);
+        super.paint(g);        
 
     }
     
@@ -190,7 +219,7 @@ public class ParentCanvas extends BaseCanvas {
      * @return Main screen image
      */
     public Image printMainScreen() {
-        PainMan.Log(this.getClass(), "printMainScreen", "drawing main screen image...");
+//        PainMan.Log(this.getClass(), "printMainScreen", "drawing main screen image...");
         
         Image bg = null;
         
@@ -208,20 +237,27 @@ public class ParentCanvas extends BaseCanvas {
         Image mainScreenImg = Image.createImage(getWidth(), imgHeight);
         Graphics g = mainScreenImg.getGraphics();
         
-        g.setColor(0xffffff);
+        g.setColor(Properties.COLOR_BACKGROUND);
         g.fillRect(0, 0, mainScreenImg.getWidth(), mainScreenImg.getHeight());        
-        g.drawRegion(bg, 0, 0, getWidth(), imgHeight ,Sprite.TRANS_NONE, 0,0, g.TOP|g.LEFT);
-//        g.drawImage(midlet.ImageUtil().getImgMainFront(), 0,0, g.TOP|g.LEFT);
-              
-        Enumeration regions = clickableRegions.keys();
+
+//        PainMan.Log(this.getClass(), "printMainScreen", "g.drawregion parameter check:\nimages same? "+mainScreenImg.equals(bg)+"\n"
+//                +"x_src >= 0 ? "+(0>=0)+"\n"
+//                +"y_src >= 0 ? "+(0>=0)+"\n"
+//                +"x_src(0) + width("+getWidth()+") <= source width("+mainScreenImg.getWidth()+") ? "+(0+getWidth() <= mainScreenImg.getWidth())+"\n"
+//                +"y_src(0) + height("+imgHeight+") <= source height("+mainScreenImg.getHeight()+") ? "+(0+imgHeight <= mainScreenImg.getHeight())+"\n"
+//                +"anchor Graphics.TOP|Graphics.LEFT = "+(Graphics.TOP|Graphics.LEFT));
+        yOffset = (mainScreenImg.getHeight() - bg.getHeight())/2;
+        g.drawRegion(bg, 0, 0, bg.getWidth(), bg.getHeight(), Sprite.TRANS_NONE, 0,yOffset, g.TOP|g.LEFT);
+        
+        Enumeration regions = getClickableRegions().keys();
         
         while(regions.hasMoreElements()) {
             Integer screen = (Integer)regions.nextElement();
-            paintBodyRegion(g, (Point[])clickableRegions.get(screen), selection == screen.intValue());
+            paintBodyRegion(g, (Point[])getClickableRegions().get(screen), selection == screen.intValue());
         }
         selection = -1;
 
-        PainMan.Log(this.getClass(), "printMainScreen", "finished drawing main screen image");
+//        PainMan.Log(this.getClass(), "printMainScreen", "finished drawing main screen image");
         return mainScreenImg;
     }
     
@@ -253,7 +289,18 @@ public class ParentCanvas extends BaseCanvas {
             return "no region defined with id "+screenID;
         }
     }
-    
+//    
+//    /**
+//     * returns height
+//     * @return 
+//     */
+//    public int getHeight() {
+//        if (image == null) {
+//            image = printMainScreen();
+//        }
+//        return image.getHeight();
+//        
+//    }
     /**
      * Method of handling touch screen release
      *
@@ -262,21 +309,24 @@ public class ParentCanvas extends BaseCanvas {
      */
     protected void pointerReleased(int x, int y) {       
         
-        Enumeration regions = clickableRegions.keys();
+        super.pointerReleased(x, y);
+        Enumeration regions = getClickableRegions().keys();
         
-        while(regions.hasMoreElements()) {
-            Integer screen = (Integer)regions.nextElement();
-            // note: check has to include scroll correction
-            if (Util.bodyRegionClicked(x+translationX, y+translationY, (Point[])clickableRegions.get(screen))) {
-                PainMan.Log(this.getClass(), "pointerReleased", "clicked inside "+getRegionName(screen.intValue()));
-                selection = screen.intValue();
-                switchToChildScreen(selection);
+        if (!REPAINT_CALLED) {
+            while (regions.hasMoreElements()) {
+                Integer screen = (Integer) regions.nextElement();
+                // note: check has to include scroll correction
+                if (Util.bodyRegionClicked(x + translationX, y + translationY, (Point[]) getClickableRegions().get(screen))) {
+                    PainMan.Log(this.getClass(), "pointerReleased", "clicked inside " + getRegionName(screen.intValue()));
+                    selection = screen.intValue();
+                    switchToChildScreen(selection);
+                }
             }
         }
   
         PainMan.Log(this.getClass(), "pointerReleased", "selection = "+selection);        
         
-        repaint();
+        doRepaint();
         
         lastPointerX = -1;
         lastPointerY = -1;
@@ -298,13 +348,18 @@ public class ParentCanvas extends BaseCanvas {
      * @param g 
      */
     protected void paintHeaders(Graphics g) {
-        int yPos = Properties.LARGE_FONT.getBaselinePosition();
+//        int yPos = Properties.LARGE_FONT.getBaselinePosition();
         
         g.setColor(0x0c0c0c);
         g.setFont(Properties.LARGE_FONT);
         String header = "PainMan";
         int headerWidth = Properties.LARGE_FONT.stringWidth(header);
-        g.drawString(header, (image.getWidth()/2-headerWidth/2), yPos, g.TOP|g.LEFT);
+        g.drawString(header, 2, 2, g.TOP|g.LEFT);
         
     }    
+    
+//    protected void paintButtons(Graphics g) {
+//        g.drawImage(midlet.ImageUtil().getIcon(ImageUtil.ICON_GEAR), 2, getHeight()-34, g.TOP|g.LEFT);
+//        g.drawImage(midlet.ImageUtil().getIcon(ImageUtil.ICON_EXIT), getWidth()-34, getHeight()-34, g.TOP|g.LEFT);
+//    }
 }

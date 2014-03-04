@@ -4,9 +4,9 @@
  */
 package painman;
 
+import java.io.IOException;
 import javax.microedition.lcdui.Graphics;
 import javax.microedition.lcdui.Image;
-import javax.microedition.lcdui.game.Sprite;
 
 /**
  *
@@ -14,13 +14,42 @@ import javax.microedition.lcdui.game.Sprite;
  */
 public class ImageUtil {
 
+    int screenWidth;
+    int screenHeight;
     Image imgMain;
-    Image imgFrontFull;
-    Image imgBackFull;
+    Image imgFull;
     Image cropImage;
-    Image imgArmPalm; // front
-    Image imgArmKnuckle; // back
+    
+   
 
+    /**
+     * Default constructor
+     */
+    public ImageUtil() {
+        this(240, 320);
+    }
+    
+    /**
+     * Initializes imageUtil to minimum screen size of 240x320
+     * 
+     * @param screenWidth 
+     * @param screenHeight 
+     */
+    public ImageUtil (int screenWidth, int screenHeight) {                
+        if (screenWidth > 240) { this.screenWidth = screenWidth; }
+        else { this.screenWidth = 240; }
+        
+        if (screenHeight > 320) { this.screenHeight = screenHeight;}
+        else { this.screenHeight = 320; }
+        PainMan.Log(this.getClass(), "const("+screenWidth+","+screenHeight+")", "Imageutil ready, w"+this.screenWidth+" h"+this.screenHeight);
+    }
+    
+    /**
+     * Returns background image for screen
+     * @param screenID desired screen
+     * @param isFrontSide true if frontside image
+     * @return 
+     */
     public Image getScreenImg(int screenID, boolean isFrontSide) {
         if (screenID == Properties.SCREEN_HEAD) {
             return getImgHead(isFrontSide);
@@ -46,6 +75,8 @@ public class ImageUtil {
         return null;
     }
 
+    
+    
     /**
      * Returns an initialized main screen background image
      *
@@ -54,7 +85,9 @@ public class ImageUtil {
      */
     private Image getImgMain(boolean isFrontSide) {
         try {
-            if (isFrontSide) {
+            // discard image to reduce heap size
+            imgMain = null;
+            if (isFrontSide) {                
                 imgMain = Image.createImage("/images/painman-man-front-320.png");
             } else {
                 imgMain = Image.createImage("/images/painman-man-back-320.png");
@@ -67,43 +100,27 @@ public class ImageUtil {
     }
 
     /**
-     * Returns an initialized full body image, front view
+     * Returns an initialized full body image
      *
+     * @param isFrontSide true to return front side image
      * @return
      */
-    private Image getImgFrontFull() {
-        if (imgFrontFull == null) {
-            try {
-                // discard back image to save memory
-                imgBackFull = null;
-                imgFrontFull = Image.createImage("/images/painman-man-front.png");
-//                PainMan.Log(this.getClass(), "getImgFrontFull", "front image size: x"+imgFrontFull.getWidth()+" y"+imgFrontFull.getHeight());
-            } catch (java.io.IOException e) {
-//                PainMan.Log(this.getClass(), "getImgFrontFull", "full front image init failed");
-                e.printStackTrace();
+    private Image getImgFull(boolean isFrontSide) {
+        try {
+            // discard image to reduce heap size
+            imgFull = null;
+            if (isFrontSide) {
+                imgFull = Image.createImage("/images/painman-man-front.png");
+            } else {
+                imgFull = Image.createImage("/images/painman-man-back.png");
             }
+//          PainMan.Log(this.getClass(), "getImgFull", "image size: x"+imgFrontFull.getWidth()+" y"+imgFrontFull.getHeight());
+        } catch (java.io.IOException e) {
+//          PainMan.Log(this.getClass(), "getImgFull", "full image init failed");
+            e.printStackTrace();
         }
-        return imgFrontFull;
-    }
 
-    /**
-     * Returns an initialized full body image, back view
-     *
-     * @return
-     */
-    private Image getImgBackFull() {
-        if (imgBackFull == null) {
-            try {
-                // discard front image to save memory
-                imgFrontFull = null;
-                imgBackFull = Image.createImage("/images/painman-man-back.png");
-//                PainMan.Log(this.getClass(), "getImgFrontFull", "front image size: x"+imgFrontFull.getWidth()+" y"+imgFrontFull.getHeight());
-            } catch (java.io.IOException e) {
-//                PainMan.Log(this.getClass(), "getImgFrontFull", "full front image init failed");
-                e.printStackTrace();
-            }
-        }
-        return imgBackFull;
+        return imgFull;
     }
 
     /**
@@ -113,7 +130,8 @@ public class ImageUtil {
      */
     private Image getCropImage() {
         if (cropImage == null) {
-            cropImage = Image.createImage(240, 320);
+            PainMan.Log(this.getClass(), "getCropImage", "initializing crop image to: "+screenWidth+"x"+screenHeight);
+            cropImage = Image.createImage(screenWidth, screenHeight);
             Graphics g = cropImage.getGraphics();
             g.setColor(Properties.COLOR_BACKGROUND);
             g.fillRect(0, 0, cropImage.getWidth(), cropImage.getHeight());
@@ -130,7 +148,7 @@ public class ImageUtil {
      */
     private void setCropImage(int x, int y, boolean frontSide) {
         Graphics g = getCropImage().getGraphics();
-        g.drawImage((frontSide ? getImgFrontFull() : getImgBackFull()), x, y, Graphics.TOP | Graphics.LEFT);
+        g.drawImage(getImgFull(frontSide), x, y, Graphics.TOP | Graphics.LEFT);
     }
 
     /**
@@ -144,14 +162,14 @@ public class ImageUtil {
     }
 
     /**
-     * Returns an initialized lower left leg image by cropping
-     * full frontal image
+     * Returns an initialized lower left leg image by cropping full frontal
+     * image
      *
      * @return
      */
     private Image getImgLeftLegLower(boolean isFrontside) {
         setCropImage(-156, -735, isFrontside);
-        PainMan.Log(this.getClass(), "getImgLeftLegLower", "Left lower leg "+(isFrontside ? "front" : "back")+" image init ok");
+        PainMan.Log(this.getClass(), "getImgLeftLegLower", "Left lower leg " + (isFrontside ? "front" : "back") + " image init ok");
         return cropImage;
     }
 
@@ -162,30 +180,30 @@ public class ImageUtil {
      */
     private Image getImgRightLegLower(boolean isFrontside) {
         setCropImage(-399, -735, isFrontside);
-        PainMan.Log(this.getClass(), "getImgRightLegLower", "Right lower leg "+(isFrontside ? "front" : "back")+" image init ok");
-        return cropImage;
-    }
-    
-    /**
-     * Returns an initialized right upper leg image
-     * @param isFrontside true for front side image
-     * @return 
-     */
-    private Image getImgRightLegUpper(boolean isFrontside) {
-        setCropImage(-399, -445, isFrontside);
-        PainMan.Log(this.getClass(), "getImgRightLegUpper", "Right upper leg "+(isFrontside ? "front" : "back")+" image init ok");
+        PainMan.Log(this.getClass(), "getImgRightLegLower", "Right lower leg " + (isFrontside ? "front" : "back") + " image init ok");
         return cropImage;
     }
 
     /**
-     * Returns an initialized left side torso & upper arm image
-     * view
+     * Returns an initialized right upper leg image
+     *
+     * @param isFrontside true for front side image
+     * @return
+     */
+    private Image getImgRightLegUpper(boolean isFrontside) {
+        setCropImage(-399, -445, isFrontside);
+        PainMan.Log(this.getClass(), "getImgRightLegUpper", "Right upper leg " + (isFrontside ? "front" : "back") + " image init ok");
+        return cropImage;
+    }
+
+    /**
+     * Returns an initialized left side torso & upper arm image view
      *
      * @return
      */
     private Image getImgLeftUpperArm(boolean isFrontside) {
         setCropImage(-159, -171, isFrontside);
-        PainMan.Log(this.getClass(), "getImgLeftUpperArm", "left side torso & upper arm image from "+(isFrontside ? "front" : "back"));
+        PainMan.Log(this.getClass(), "getImgLeftUpperArm", "left side torso & upper arm image from " + (isFrontside ? "front" : "back"));
         return cropImage;
     }
 
@@ -196,42 +214,43 @@ public class ImageUtil {
      */
     private Image getImgLeftHand(boolean isFrontside) {
         setCropImage(0, -236, isFrontside);
-        PainMan.Log(this.getClass(), "getImgLeftHand", "left side hand image from "+(isFrontside ? "front" : "back"));
+        PainMan.Log(this.getClass(), "getImgLeftHand", "left side hand image from " + (isFrontside ? "front" : "back"));
         return cropImage;
     }
-
 
     /**
      * Returns an initialized image of left side upper leg
+     *
      * @param isFrontside
-     * @return 
+     * @return
      */
     private Image getImgLeftLegUpper(boolean isFrontside) {
         setCropImage(-159, -445, isFrontside);
-        PainMan.Log(this.getClass(), "getImgLeftLegUpper", "left side upper leg image from "+(isFrontside ? "front" : "back"));
+        PainMan.Log(this.getClass(), "getImgLeftLegUpper", "left side upper leg image from " + (isFrontside ? "front" : "back"));
         return cropImage;
     }
-    
+
     /**
      * Returns an initialized image of right side upper arm
+     *
      * @param isFrontside true for front side image
-     * @return 
+     * @return
      */
     private Image getImgRightUpperArm(boolean isFrontside) {
         setCropImage(-399, -171, isFrontside);
-        PainMan.Log(this.getClass(), "getImgRightUpperArm", "right side torso & upper arm image from "+(isFrontside ? "front" : "back"));
+        PainMan.Log(this.getClass(), "getImgRightUpperArm", "right side torso & upper arm image from " + (isFrontside ? "front" : "back"));
         return cropImage;
     }
-    
+
     /**
      * Returns an initialized image of right side hand
+     *
      * @param isFrontside true for front side image
-     * @return 
+     * @return
      */
     private Image getImgRightHand(boolean isFrontside) {
         setCropImage(-569, -262, isFrontside);
-        PainMan.Log(this.getClass(), "getImgRightHand", "right side hand image from "+(isFrontside ? "front" : "back"));
+        PainMan.Log(this.getClass(), "getImgRightHand", "right side hand image from " + (isFrontside ? "front" : "back"));
         return cropImage;
     }
-   
 }

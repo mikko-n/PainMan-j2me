@@ -102,6 +102,11 @@ public final class Properties {
     public static final int COLOR_CROSSHAIR = 0xFF0000;
     
     /**
+     * Time to perform rotate gesture in ms
+     */
+    public static final long GESTURE_ROTATE_INTERVAL_MS = 280;
+    
+    /**
      * System wide settings:
      * [0] Current locale
      */

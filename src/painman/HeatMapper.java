@@ -60,11 +60,11 @@ public class HeatMapper {
             // calculate point x.y
             for (int scanx = (int) (x - radius); scanx < (int) (x + radius); scanx += 1) {
                 // out of extend
-                if (scanx < 0 || scanx > width) {
+                if (scanx < 0 || scanx >= width) {
                     continue;
                 }
                 for (int scany = (int) (y - radius); scany < (int) (y + radius); scany += 1) {
-                    if (scany < 0 || scany > height) {
+                    if (scany < 0 || scany >= height) {
                         continue;
                     }
 

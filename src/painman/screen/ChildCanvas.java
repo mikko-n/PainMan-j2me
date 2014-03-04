@@ -5,6 +5,7 @@
 package painman.screen;
 
 import javax.microedition.lcdui.Graphics;
+import painman.ImageUtil;
 import painman.PainMan;
 import painman.Properties;
 
@@ -24,8 +25,7 @@ public class ChildCanvas extends BaseCanvas {
      */
     protected void paint(Graphics g) {
         super.paint(g);
-        paintHeaders(g);  
-        
+                
         if (ADD_DATAPOINT_MODE) {
             drawCrossHair(g);
         }
@@ -75,5 +75,9 @@ public class ChildCanvas extends BaseCanvas {
         g.drawLine(lastPointerX, lastPointerY - 2, lastPointerX, lastPointerY + 2);
 
     }
+    
+//    protected void paintButtons(Graphics g) {
+//        g.drawImage(midlet.ImageUtil().getIcon(ImageUtil.ICON_BACK), getWidth()-34, getHeight()-34, g.TOP|g.LEFT);
+//    }
     
 }

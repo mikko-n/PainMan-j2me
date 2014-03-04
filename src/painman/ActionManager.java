@@ -9,12 +9,13 @@ import javax.microedition.lcdui.Command;
 import javax.microedition.lcdui.CommandListener;
 import javax.microedition.lcdui.Displayable;
 import painman.screen.BaseCanvas;
+import painman.screen.Button;
 
 /**
  *
  * @author NIM
  */
-public class ActionManager implements CommandListener {
+public class ActionManager implements CommandListener, BaseCanvas.CanvasButtonListener {
 
     private PainMan midlet;
     
@@ -51,10 +52,10 @@ public class ActionManager implements CommandListener {
         if (c == midlet.Commands().CmdExit()) {
             midlet.exitMIDlet();
         } 
-        else if ( c == midlet.Commands().CmdFlip()) {
-            midlet.Forms().getFrmMain().flip();
-            midlet.Forms().getFrmMain().repaint();
-        } 
+//        else if ( c == midlet.Commands().CmdFlip()) {
+//            midlet.Forms().getFrmMain().flip();
+//            midlet.Forms().getFrmMain().repaint();
+//        } 
         else if ( c == midlet.Commands().CmdSettings() ) {
             midlet.switchDisplay(null, midlet.Forms().getSettingsList());
         }
@@ -97,7 +98,7 @@ public class ActionManager implements CommandListener {
         else if ( c == midlet.Commands().CmdAddPoint()) {
             ((BaseCanvas)d).ADD_DATAPOINT_MODE = true;
             d.removeCommand(midlet.Commands().CmdAddPoint());
-            d.removeCommand(midlet.Commands().CmdFlip());
+//            d.removeCommand(midlet.Commands().CmdFlip());
             d.removeCommand(midlet.Commands().CmdBack());
             
             d.addCommand(midlet.Commands().CmdAddPointOk());
@@ -110,7 +111,7 @@ public class ActionManager implements CommandListener {
             d.removeCommand(midlet.Commands().CmdCancel());
             
             d.addCommand(midlet.Commands().CmdAddPoint());
-            d.addCommand(midlet.Commands().CmdFlip());
+//            d.addCommand(midlet.Commands().CmdFlip());
             d.addCommand(midlet.Commands().CmdBack());
             ((BaseCanvas)d).addDataPointConfirmed();
         }       
@@ -121,15 +122,25 @@ public class ActionManager implements CommandListener {
             d.removeCommand(midlet.Commands().CmdCancel());
             
             d.addCommand(midlet.Commands().CmdAddPoint());
-            d.addCommand(midlet.Commands().CmdFlip());
+//            d.addCommand(midlet.Commands().CmdFlip());
             d.addCommand(midlet.Commands().CmdBack());
             ((BaseCanvas)d).repaint();
         }
         
-        else if ( c == midlet.Commands().CmdFlip()) {            
-            ((BaseCanvas)d).flip();            
-            ((BaseCanvas)d).repaint();
+//        else if ( c == midlet.Commands().CmdFlip()) {            
+//            ((BaseCanvas)d).flip();            
+//            ((BaseCanvas)d).repaint();
+//        }
+    }
+
+    public void buttonAction(Button button, Displayable d) {
+        if (d == midlet.Forms().getFrmMain()) {
+            if (button.getID() == Button.BUTTON_EXIT) {
+                midlet.exitMIDlet();
+            }            
         }
+        
+        
     }
     
 }

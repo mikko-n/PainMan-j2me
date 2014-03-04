@@ -64,12 +64,13 @@ public class PainMan extends MIDlet {
      * @return _imageUtil
      */
     public ImageUtil ImageUtil() {
-        if (_imageUtil == null) {
-            _imageUtil = new ImageUtil();
+        if (_imageUtil == null) {            
+            _imageUtil = new ImageUtil(getDisplay().getCurrent().getWidth(), getDisplay().getCurrent().getHeight());
         }
         return _imageUtil;
     }
     
+    // todo: replace this with java.util.Stack ???
     private java.util.Hashtable _previousDisplayables = new java.util.Hashtable();
     
     public PainMan() {
