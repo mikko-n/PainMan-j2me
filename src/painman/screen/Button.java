@@ -6,9 +6,7 @@
 package painman.screen;
 
 import java.io.IOException;
-import javax.microedition.amms.control.tuner.RDSControl;
 import javax.microedition.lcdui.CustomItem;
-import javax.microedition.lcdui.Displayable;
 import javax.microedition.lcdui.Graphics;
 import javax.microedition.lcdui.Image;
 import painman.PainMan;
@@ -45,8 +43,8 @@ public class Button extends CustomItem {
     public static final int BUTTON_STATISTICS = 14;
     public static final int BUTTON_BACK = 16;
     public static final int BUTTON_GEAR = 18;
-    public static final int ICON_SEARCH = 20;
-    public static final int ICON_CANCEL = 22;
+    public static final int BUTTON_SEARCH = 20;
+    public static final int BUTTON_CANCEL = 22;
     
     public Button(String label) {
         super(label);
@@ -96,7 +94,7 @@ public class Button extends CustomItem {
      * @param y
      */
     public void pointerPressed(int x, int y) {
-        if (!enabled) {
+        if (!enabled || !visible) {
             return;
         }        
         pressed = contains(x, y);
@@ -105,7 +103,7 @@ public class Button extends CustomItem {
     public void pointerReleased(int x, int y) {
 //        PainMan.Log(this.getClass(), "pointerReleased", "Button "+this.getID()+" clicked\n"+
 //                " click at x"+x+"y"+y+" button located at x"+getXPos()+"y"+getYPos());
-        if (!enabled) {
+        if (!enabled || !visible) {
             return;
         }
         if (pressed && contains(x,y)) {
@@ -148,8 +146,9 @@ public class Button extends CustomItem {
         return enabled;
     }
     
-    public void setVisible(boolean visible) {
+    public void setVisible(boolean visible) {        
         this.visible = visible;
+        this.enabled = visible;
     }
     
     public boolean isVisible() {
@@ -251,7 +250,7 @@ public class Button extends CustomItem {
         if (row == -1) row = 0;
         int col = (iconID)%4;
         
-        PainMan.Log(this.getClass(), "getIcon", "called for icon id "+iconID+", returning icon from r"+row+" c"+col);
+//        PainMan.Log(this.getClass(), "getIcon", "called for icon id "+iconID+", returning icon from r"+row+" c"+col);
 
         int x = 32*col;
         int y = 32*row;

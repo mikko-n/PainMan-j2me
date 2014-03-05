@@ -52,10 +52,7 @@ public class ActionManager implements CommandListener, BaseCanvas.CanvasButtonLi
         if (c == midlet.Commands().CmdExit()) {
             midlet.exitMIDlet();
         } 
-//        else if ( c == midlet.Commands().CmdFlip()) {
-//            midlet.Forms().getFrmMain().flip();
-//            midlet.Forms().getFrmMain().repaint();
-//        } 
+
         else if ( c == midlet.Commands().CmdSettings() ) {
             midlet.switchDisplay(null, midlet.Forms().getSettingsList());
         }
@@ -77,12 +74,13 @@ public class ActionManager implements CommandListener, BaseCanvas.CanvasButtonLi
      */
     private void handlePointEditorCommands(Command c) {
         if ( c == midlet.Commands().CmdBack()) {
-            midlet.switchToPreviousDisplay();
+            midlet.switchToPreviousDisplay();            
         }
         else if ( c == midlet.Commands().CmdOk()) {
             midlet.Forms().getPointEditor().saveData();
             midlet.switchToPreviousDisplay();
         }
+        Properties.ADD_DATAPOINT_MODE = false;
     }
     
     /**
@@ -95,8 +93,8 @@ public class ActionManager implements CommandListener, BaseCanvas.CanvasButtonLi
             midlet.switchToPreviousDisplay();
         }         
         
-        else if ( c == midlet.Commands().CmdAddPoint()) {
-            ((BaseCanvas)d).ADD_DATAPOINT_MODE = true;
+        else if ( c == midlet.Commands().CmdAddPoint() && Properties.ADD_DATAPOINT_MODE == false) {
+            Properties.ADD_DATAPOINT_MODE = true;
             d.removeCommand(midlet.Commands().CmdAddPoint());
 //            d.removeCommand(midlet.Commands().CmdFlip());
             d.removeCommand(midlet.Commands().CmdBack());
@@ -106,7 +104,7 @@ public class ActionManager implements CommandListener, BaseCanvas.CanvasButtonLi
             ((BaseCanvas)d).repaint();
         } 
         
-        else if ( c == midlet.Commands().CmdAddPointOk() ) {
+        else if ( c == midlet.Commands().CmdAddPointOk() && Properties.ADD_DATAPOINT_MODE ) {
             d.removeCommand(midlet.Commands().CmdAddPointOk());
             d.removeCommand(midlet.Commands().CmdCancel());
             
@@ -116,8 +114,8 @@ public class ActionManager implements CommandListener, BaseCanvas.CanvasButtonLi
             ((BaseCanvas)d).addDataPointConfirmed();
         }       
         
-        else if ( c == midlet.Commands().CmdCancel() ) {
-            ((BaseCanvas)d).ADD_DATAPOINT_MODE = false;
+        else if ( c == midlet.Commands().CmdCancel() && Properties.ADD_DATAPOINT_MODE ) {
+            Properties.ADD_DATAPOINT_MODE = false;
             d.removeCommand(midlet.Commands().CmdAddPointOk());
             d.removeCommand(midlet.Commands().CmdCancel());
             
@@ -133,14 +131,77 @@ public class ActionManager implements CommandListener, BaseCanvas.CanvasButtonLi
 //        }
     }
 
-    public void buttonAction(Button button, Displayable d) {
+    /**
+     * Handles button presses for all screens
+     * @param b
+     * @param d 
+     */
+    public void buttonAction(Button b, Displayable d) {
         if (d == midlet.Forms().getFrmMain()) {
-            if (button.getID() == Button.BUTTON_EXIT) {
-                midlet.exitMIDlet();
-            }            
+            handleMainScreenButtons(b);
+        } else {
+            handleBodyPartButtons(b, d);
+        }           
+    }
+
+    /**
+     * Main screen button actions
+     * @param b 
+     */
+    private void handleMainScreenButtons(Button b) {
+        if (b.getID() == Button.BUTTON_EXIT) {
+            midlet.exitMIDlet();
+        }       
+        else if (b.getID() == Button.BUTTON_SETTINGS ) {
+            midlet.switchDisplay(null, midlet.Forms().getSettingsList());
+        }
+    }
+    
+    /**
+     * Handle other screens
+     * @param b
+     * @param d 
+     */
+    private void handleBodyPartButtons(Button b, Displayable d) {
+        if (b.getID() == Button.BUTTON_BACK) {
+            midlet.switchToPreviousDisplay();
+        }         
+        
+        else if ( b.getID() == Button.BUTTON_ADD_ENTRY && Properties.ADD_DATAPOINT_MODE == false) {
+            PainMan.Log(this.getClass(), "handleBodyPartButtons", b.getID()+" add entry button clicked");
+            Properties.ADD_DATAPOINT_MODE = true;
+            
+            if (((BaseCanvas)d).getButton(Button.BUTTON_ADD_ENTRY) != null) { ((BaseCanvas)d).getButton(Button.BUTTON_ADD_ENTRY).setVisible(false); }                      
+            if (((BaseCanvas)d).getButton(Button.BUTTON_BACK) != null) { ((BaseCanvas)d).getButton(Button.BUTTON_BACK).setVisible(false); }
+   
+            if (((BaseCanvas)d).getButton(Button.BUTTON_APPLY) != null) { ((BaseCanvas)d).getButton(Button.BUTTON_APPLY).setVisible(true); }                       
+            if (((BaseCanvas)d).getButton(Button.BUTTON_CANCEL) != null) { ((BaseCanvas)d).getButton(Button.BUTTON_CANCEL).setVisible(true); }
+
+            ((BaseCanvas)d).doRepaint();
+        } 
+        
+        else if ( b.getID() == Button.BUTTON_APPLY && Properties.ADD_DATAPOINT_MODE ) {
+            PainMan.Log(this.getClass(), "handleBodyPartButtons", b.getID()+" apply button clicked");
+            
+            if (((BaseCanvas)d).getButton(Button.BUTTON_APPLY) != null) { ((BaseCanvas)d).getButton(Button.BUTTON_APPLY).setVisible(false); }                       
+            if (((BaseCanvas)d).getButton(Button.BUTTON_CANCEL) != null) { ((BaseCanvas)d).getButton(Button.BUTTON_CANCEL).setVisible(false); }
+            
+            if (((BaseCanvas)d).getButton(Button.BUTTON_ADD_ENTRY) != null) { ((BaseCanvas)d).getButton(Button.BUTTON_ADD_ENTRY).setVisible(true); }                      
+            if (((BaseCanvas)d).getButton(Button.BUTTON_BACK) != null) { ((BaseCanvas)d).getButton(Button.BUTTON_BACK).setVisible(true); }
+            ((BaseCanvas)d).addDataPointConfirmed(); 
         }
         
-        
+        else if (b.getID() == Button.BUTTON_CANCEL && Properties.ADD_DATAPOINT_MODE  ){
+            PainMan.Log(this.getClass(), "handleBodyPartButtons", b.getID()+" cancel button clicked");
+            
+            if (((BaseCanvas)d).getButton(Button.BUTTON_APPLY) != null) { ((BaseCanvas)d).getButton(Button.BUTTON_APPLY).setVisible(false); }                       
+            if (((BaseCanvas)d).getButton(Button.BUTTON_CANCEL) != null) { ((BaseCanvas)d).getButton(Button.BUTTON_CANCEL).setVisible(false); }
+            
+            if (((BaseCanvas)d).getButton(Button.BUTTON_ADD_ENTRY) != null) { ((BaseCanvas)d).getButton(Button.BUTTON_ADD_ENTRY).setVisible(true); }                      
+            if (((BaseCanvas)d).getButton(Button.BUTTON_BACK) != null) { ((BaseCanvas)d).getButton(Button.BUTTON_BACK).setVisible(true); }
+            Properties.ADD_DATAPOINT_MODE = false;
+            ((BaseCanvas)d).doRepaint();
+        }
     }
     
 }

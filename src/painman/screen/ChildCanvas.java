@@ -26,7 +26,7 @@ public class ChildCanvas extends BaseCanvas {
     protected void paint(Graphics g) {
         super.paint(g);
                 
-        if (ADD_DATAPOINT_MODE) {
+        if (Properties.ADD_DATAPOINT_MODE) {
             drawCrossHair(g);
         }
     }
@@ -44,7 +44,7 @@ public class ChildCanvas extends BaseCanvas {
             header = PainMan.getUiString("Back");
         }
         
-        if (ADD_DATAPOINT_MODE) {
+        if (Properties.ADD_DATAPOINT_MODE) {
 //            PainMan.Log(this.getClass(), "paintHeaders", "drawing info text to screen");
             header = PainMan.getUiString("Place-pain-point");
             g.setFont(Properties.SMALL_FONT);

@@ -33,9 +33,10 @@ public abstract class BaseCanvas extends Canvas implements Button.ButtonListener
     
 //    boolean IS_FRONTSIDE = true;
 //    protected boolean IS_LEFT;
-    public boolean ADD_DATAPOINT_MODE = false;
+//    public boolean ADD_DATAPOINT_MODE = false;
     public boolean NEED_IMAGE_REFRESH = true;
     public boolean REPAINT_CALLED = false;
+    private long lastButtonClick = System.currentTimeMillis();
     
     private int previous_data_size = 0;
     protected Point newData = null;
@@ -66,6 +67,10 @@ public abstract class BaseCanvas extends Canvas implements Button.ButtonListener
         this.SCREEN_ID = screenID;
     }
 
+    /**
+     * Sets screen id
+     * @param screenID 
+     */
     protected void setScreenID(int screenID) {
         this.SCREEN_ID = screenID;
         //getData().setBodyPartId(screenID);        
@@ -89,13 +94,39 @@ public abstract class BaseCanvas extends Canvas implements Button.ButtonListener
         return data;
     }
     
+    /**
+     * Adds button to screen
+     * @param button 
+     */
     public void addButton(Button button) {        
         if (this.buttons == null) {
             this.buttons = new Vector();
         }
+        button.setListener(this);
         buttons.addElement(button);
     }
 
+    
+    /**
+     * Returns a button instance from screen with specific id
+     * @param buttonID See Button class for valid id:s
+     * @return 
+     */
+    public Button getButton(int buttonID) {
+        if (this.buttons == null) {
+            return null;
+        }
+        Enumeration btns = buttons.elements();
+        while (btns.hasMoreElements()) {
+            Button b = (Button)btns.nextElement();
+            if (b.getID() == buttonID) {
+//                return (Button)buttons.elementAt(buttons.indexOf(b));
+                return b;
+            }
+        }
+        return null;
+    }
+        
     /**
      * Refreshes screen data model from RMS
      */
@@ -119,11 +150,17 @@ public abstract class BaseCanvas extends Canvas implements Button.ButtonListener
 //    public void setData(BodyPart data) {
 //        this.data = data;
 //    }
+    
+    /**
+     * Screen paint method
+     * @param g 
+     */
     protected void paint(Graphics g) {
+        // todo: two-stage refresh for some kind of user info
         if (NEED_IMAGE_REFRESH) {
             refreshData();
             image = paintBackgroundImage();
-            NEED_IMAGE_REFRESH = false;
+            NEED_IMAGE_REFRESH = false;            
         }
         this.imageWidth = image.getWidth();
         this.imageHeight = image.getHeight();
@@ -135,6 +172,10 @@ public abstract class BaseCanvas extends Canvas implements Button.ButtonListener
         REPAINT_CALLED = false;
     }
 
+    /**
+     * Draws buttons to screen
+     * @param g 
+     */
     private void paintButtons(Graphics g) {
         if (buttons != null) {
             Enumeration btns = buttons.elements();
@@ -144,6 +185,7 @@ public abstract class BaseCanvas extends Canvas implements Button.ButtonListener
             }
         }
     }
+    
     /**
      * Turns person around
      */
@@ -190,6 +232,7 @@ public abstract class BaseCanvas extends Canvas implements Button.ButtonListener
         if (screenData != null && !screenData.isEmpty() && (screenData.size() != previous_data_size || NEED_IMAGE_REFRESH)) {
             g.drawRGB(HeatMapper.createRGBData(screenData, screenBgImage.getWidth(), screenBgImage.getHeight()), 0, getWidth(), 0, 0, getWidth(), screenBgImage.getHeight(), true);
             previous_data_size = screenData.size();
+            PainMan.Log(this.getClass(), "paintHeatMap", "finished painting heatmap with "+previous_data_size+" data points");        
         }
     }
 
@@ -211,11 +254,14 @@ public abstract class BaseCanvas extends Canvas implements Button.ButtonListener
         return palautus;
     }
 
+    /**
+     * Draws background image and heatmap if there is data points
+     * @return 
+     */
     protected Image paintBackgroundImage() {
         PainMan.Log(this.getClass(), "paintBackgroundImage", "drawing "+this.getClass().getName()+" from "+(Properties.IS_FRONTSIDE ? "front" : "back"));
         Image bg;
 
-//        if (IS_LEFT) {
         if (Properties.IS_FRONTSIDE) {
             bg = getFrontImage();
         } else {
@@ -249,9 +295,15 @@ public abstract class BaseCanvas extends Canvas implements Button.ButtonListener
      * @param y touch coordinate y
      */
     protected void pointerPressed(int x, int y) {
-        Enumeration btns = buttons.elements();
-        while (btns.hasMoreElements()) {
-            ((Button)btns.nextElement()).pointerPressed(x, y);
+        if (buttons != null) {
+            Enumeration btns = buttons.elements();
+            while (btns.hasMoreElements()) {
+                Button b = (Button)btns.nextElement();
+                if (b.isVisible() && b.isEnabled()) {
+                    b.pointerPressed(x, y);
+                    continue;
+                }
+            }
         }
         
         lastPointerX = pointerStartX = x;
@@ -266,27 +318,10 @@ public abstract class BaseCanvas extends Canvas implements Button.ButtonListener
      * @param y touch coordinate y
      */
     protected void pointerReleased(int x, int y) {
-
-        if (getData() != null && ADD_DATAPOINT_MODE) {
-            lastPointerX = x;
-            lastPointerY = y;
-
-//            PainMan.Log(this.getClass(), "pointerRelease", "adding data point x" + x + " y" + y + ", image offset x" + translationX + " y" + translationY);
-            int pointX = x + translationX;
-            int pointY = y + translationY;
-            newData = new Point(pointX, pointY, 20, SCREEN_ID, Properties.IS_FRONTSIDE);
-            doRepaint();
-//            getData().addPoint(id, newData);            
-//            PainMan.Log(this.getClass(), "pointerRelease", "Data point (id "+id.intValue()+") added: "+newData.toString()+", dataset size: "+getData().getDataSize());
-
-
-//            refreshData();
-//            repaint();
-        }
         
         // check if user wants to switch direction
         long gestureTime = (System.currentTimeMillis() - gestureStartMS);
-        PainMan.Log(this.getClass(), "pointerReleased", "pointer moved "+ Math.abs(pointerStartX-x)+" px in "+gestureTime+" ms");
+//        PainMan.Log(this.getClass(), "pointerReleased", "pointer moved "+ Math.abs(pointerStartX-x)+" px in "+gestureTime+" ms");
         
         // user has swiped across 2/3 screen in less than ~300 ms, 
         // that counts to rotate gesture
@@ -298,11 +333,28 @@ public abstract class BaseCanvas extends Canvas implements Button.ButtonListener
         }
         
         // buttons
-        Enumeration btns = buttons.elements();
-        while (btns.hasMoreElements()) {
-            ((Button)btns.nextElement()).pointerReleased(x, y);
+        if (buttons != null) {
+            Enumeration btns = buttons.elements();
+            while (btns.hasMoreElements()) {
+                Button b = (Button)btns.nextElement();
+                if (b.isVisible() && b.isEnabled()) {
+                    b.pointerReleased(x, y);
+                    continue;
+                }
+            }
         }
         
+        // handle datapoint set after button click because that way point doesn't change
+        if (getData() != null && Properties.ADD_DATAPOINT_MODE) {
+            lastPointerX = x;
+            lastPointerY = y;
+
+//            PainMan.Log(this.getClass(), "pointerRelease", "adding data point x" + x + " y" + y + ", image offset x" + translationX + " y" + translationY);
+            int pointX = x + translationX;
+            int pointY = y + translationY;
+            newData = new Point(pointX, pointY, 20, SCREEN_ID, Properties.IS_FRONTSIDE);
+            doRepaint();
+        }
         
         // reset gesture variables    
         gestureStartMS = 0;
@@ -329,12 +381,13 @@ public abstract class BaseCanvas extends Canvas implements Button.ButtonListener
             int pointX = lastPointerX + translationX;
             int pointY = lastPointerY + translationY;
             Integer id = new Integer(pointX + pointY * getWidth());
-            ADD_DATAPOINT_MODE = !ADD_DATAPOINT_MODE;
+            Properties.ADD_DATAPOINT_MODE = false;
             NEED_IMAGE_REFRESH = true;
 
             PainMan.Log(this.getClass(), "addDataPointConfirmed", "data point add ok, switching to point editor");
             
             midlet.switchDisplay(null, midlet.Forms().getPointEditor(id, newData, true));
+            
         }
     }
 
@@ -346,11 +399,15 @@ public abstract class BaseCanvas extends Canvas implements Button.ButtonListener
      */
     protected void pointerDragged(int x, int y) {
         scrollImage(lastPointerX - x, lastPointerY - y);
-        Enumeration btns = buttons.elements();
-        while (btns.hasMoreElements()) {
-            ((Button)btns.nextElement()).pointerDragged(x, y);
+        if (buttons != null) {
+            Enumeration btns = buttons.elements();
+            while (btns.hasMoreElements()) {
+                Button b = (Button)btns.nextElement();
+                if (b.isVisible()) {
+                    b.pointerDragged(x, y);
+                }
+            }
         }
-        
         lastPointerX = x;
         lastPointerY = y;
     }
@@ -391,12 +448,6 @@ public abstract class BaseCanvas extends Canvas implements Button.ButtonListener
      */
     protected abstract void paintHeaders(Graphics g);
 
-//    /**
-//     * Method for printing ui buttons
-//     * @param g 
-//     */
-//    protected abstract void paintButtons(Graphics g);
-//    
     protected Image getFrontImage() {
         return midlet.ImageUtil().getScreenImg(getScreenID(), true);
     }
@@ -412,7 +463,18 @@ public abstract class BaseCanvas extends Canvas implements Button.ButtonListener
      */
     public void buttonClicked(Button button) {
 //        PainMan.Log(this.getClass(), "buttonClicked", "Button "+button.getID()+" clicked");
-        listener.buttonAction(button, this);
+        
+        // filter out quick successive clicks and random event firing mayhem
+        if (System.currentTimeMillis() - lastButtonClick > 50) {
+            if (listener != null) {
+                lastButtonClick = System.currentTimeMillis();
+                listener.buttonAction(button, this);
+            } else {
+                PainMan.Log(this.getClass(), "buttonClicked", "Button " + button.getID() + " clicked but there was no listener attached");
+            }
+        } else {
+            PainMan.Log(this.getClass(), "buttonClicked", "Button " + button.getID() + " clicked but too little time elapsed since last click ("+(System.currentTimeMillis()-lastButtonClick)+" ms)");
+        }
     }
     
     public interface CanvasButtonListener {

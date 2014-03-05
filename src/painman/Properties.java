@@ -102,6 +102,11 @@ public final class Properties {
     public static final int COLOR_CROSSHAIR = 0xFF0000;
     
     /**
+     * Default text color
+     */
+    public static final int COLOR_TEXT = 0x000000;
+    
+    /**
      * Time to perform rotate gesture in ms
      */
     public static final long GESTURE_ROTATE_INTERVAL_MS = 280;
@@ -116,6 +121,11 @@ public final class Properties {
      * Global boolean for forms: indicates which side should be visible
      */
     public static boolean IS_FRONTSIDE = true;
+    
+    /**
+     * Global boolean for datapoint add mode
+     */
+    public static boolean ADD_DATAPOINT_MODE = false;
     
     
     /**

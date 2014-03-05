@@ -34,7 +34,6 @@ public class CommandManager {
         }
         return cmdExit;
     }    
-    
 
     /**
      * Returns an initialized instance of cmdBack component

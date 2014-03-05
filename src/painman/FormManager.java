@@ -79,9 +79,12 @@ public class FormManager {
 //            cnvMain.addCommand(midlet.Commands().CmdFlip());
             cnvMain.setFullScreenMode(true);
             
-            Button exitBtn = new Button("", Button.BUTTON_EXIT, cnvMain.getWidth()-34, cnvMain.getHeight()-34);
-            exitBtn.setListener(cnvMain);
-            cnvMain.addButton(exitBtn);
+            // todo: buttonmanager / factory
+            Button btnExit = new Button("", Button.BUTTON_EXIT, cnvMain.getWidth()-34, cnvMain.getHeight()-34);                        
+            cnvMain.addButton(btnExit);
+            
+            Button btnSettings = new Button("", Button.BUTTON_SETTINGS, 2, cnvMain.getHeight()-34);                        
+            cnvMain.addButton(btnSettings);
             
             cnvMain.addCommand(midlet.Commands().CmdSettings());
             cnvMain.addCommand(midlet.Commands().CmdExit());            
@@ -103,11 +106,16 @@ public class FormManager {
     public ChildCanvas getCnvHead() {
         if (cnvHead == null) {
             PainMan.Log(this.getClass(), "getCnvHead", "cnvHead empty, initializing...");
-            cnvHead = new ChildCanvas(midlet, Properties.SCREEN_HEAD);
+            cnvHead = new ChildCanvas(midlet, Properties.SCREEN_HEAD);            
 //            cnvHead.addCommand(midlet.Commands().CmdFlip());
+            cnvHead.setFullScreenMode(true);
+            
+            addChildCanvasButtons(cnvHead);
+            
             cnvHead.addCommand(midlet.Commands().CmdAddPoint());
             cnvHead.addCommand(midlet.Commands().CmdBack());
             cnvHead.setCommandListener(midlet.CommandListener());
+            cnvHead.setButtonListener(midlet.CommandListener());
             PainMan.Log(this.getClass(), "getCnvHead", "cnvHead ready");
         }
         
@@ -125,9 +133,14 @@ public class FormManager {
             PainMan.Log(this.getClass(), "getCnvLeftUpperArm", "cnvLeftArmUpper empty, initializing...");
             cnvLeftArmUpper = new ChildCanvas(midlet, Properties.SCREEN_LEFTARM_TORSO);
 //            cnvLeftArmUpper.addCommand(midlet.Commands().CmdFlip());
+            cnvLeftArmUpper.setFullScreenMode(true);
+            
+            addChildCanvasButtons(cnvLeftArmUpper);
+            
             cnvLeftArmUpper.addCommand(midlet.Commands().CmdAddPoint());
             cnvLeftArmUpper.addCommand(midlet.Commands().CmdBack());
             cnvLeftArmUpper.setCommandListener(midlet.CommandListener());
+            cnvLeftArmUpper.setButtonListener(midlet.CommandListener());
             PainMan.Log(this.getClass(), "getCnvLeftUpperArm", "cnvLeftArmUpper ready");
         }
         
@@ -145,9 +158,14 @@ public class FormManager {
             PainMan.Log(this.getClass(), "getCnvLeftArmLower", "cnvLeftArmLower empty, initializing...");
             cnvLeftArmLower = new ChildCanvas(midlet, Properties.SCREEN_LEFTHAND);
 //            cnvLeftArmLower.addCommand(midlet.Commands().CmdFlip());
+            cnvLeftArmLower.setFullScreenMode(true);
+            
+            addChildCanvasButtons(cnvLeftArmLower);
+            
             cnvLeftArmLower.addCommand(midlet.Commands().CmdAddPoint());
             cnvLeftArmLower.addCommand(midlet.Commands().CmdBack());
             cnvLeftArmLower.setCommandListener(midlet.CommandListener());
+            cnvLeftArmLower.setButtonListener(midlet.CommandListener());
             PainMan.Log(this.getClass(), "getCnvLeftArmLower", "cnvLeftArmLower ready");
         }
         
@@ -165,9 +183,14 @@ public class FormManager {
             PainMan.Log(this.getClass(), "getCnvRightArmUpper", "cnvRightArmUpper empty, initializing...");
             cnvRightArmUpper = new ChildCanvas(midlet, Properties.SCREEN_RIGHTARM_TORSO);
 //            cnvRightArmUpper.addCommand(midlet.Commands().CmdFlip());
+            cnvRightArmUpper.setFullScreenMode(true);
+            
+            addChildCanvasButtons(cnvRightArmUpper);
+            
             cnvRightArmUpper.addCommand(midlet.Commands().CmdAddPoint());
             cnvRightArmUpper.addCommand(midlet.Commands().CmdBack());
             cnvRightArmUpper.setCommandListener(midlet.CommandListener());
+            cnvRightArmUpper.setButtonListener(midlet.CommandListener());
             PainMan.Log(this.getClass(), "getCnvRightArmUpper", "cnvRightArmUpper ready");
         }
         
@@ -185,9 +208,14 @@ public class FormManager {
             PainMan.Log(this.getClass(), "getCnvRightArmLower", "cnvRightArmLower empty, initializing...");
             cnvRightArmLower = new ChildCanvas(midlet, Properties.SCREEN_RIGHTHAND);
 //            cnvRightArmLower.addCommand(midlet.Commands().CmdFlip());
+            cnvRightArmLower.setFullScreenMode(true);
+            
+            addChildCanvasButtons(cnvRightArmLower);
+            
             cnvRightArmLower.addCommand(midlet.Commands().CmdAddPoint());
             cnvRightArmLower.addCommand(midlet.Commands().CmdBack());
             cnvRightArmLower.setCommandListener(midlet.CommandListener());
+            cnvRightArmLower.setButtonListener(midlet.CommandListener());
             PainMan.Log(this.getClass(), "getCnvRightArmLower", "cnvRightArmLower ready");
         }
         
@@ -205,9 +233,14 @@ public class FormManager {
             PainMan.Log(this.getClass(), "getCnvLeftLegUpper", "cnvLeftLegUpper empty, initializing...");
             cnvLeftLegUpper = new ChildCanvas(midlet, Properties.SCREEN_LEFTLEG_UPPER);
 //            cnvLeftLegUpper.addCommand(midlet.Commands().CmdFlip());
+            cnvLeftLegUpper.setFullScreenMode(true);
+            
+            addChildCanvasButtons(cnvLeftLegUpper);
+            
             cnvLeftLegUpper.addCommand(midlet.Commands().CmdAddPoint());
             cnvLeftLegUpper.addCommand(midlet.Commands().CmdBack());
             cnvLeftLegUpper.setCommandListener(midlet.CommandListener());
+            cnvLeftLegUpper.setButtonListener(midlet.CommandListener());
             PainMan.Log(this.getClass(), "getCnvLeftLegUpper", "cnvLeftLegUpper ready");            
         }
         
@@ -225,9 +258,14 @@ public class FormManager {
             PainMan.Log(this.getClass(), "getCnvLeftLegLower", "cnvLeftLegLower empty, initializing...");
             cnvLeftLegLower = new ChildCanvas(midlet, Properties.SCREEN_LEFTLEG_LOWER);
 //            cnvLeftLegLower.addCommand(midlet.Commands().CmdFlip());
+            cnvLeftLegLower.setFullScreenMode(true);
+            
+            addChildCanvasButtons(cnvLeftLegLower);
+            
             cnvLeftLegLower.addCommand(midlet.Commands().CmdAddPoint());
             cnvLeftLegLower.addCommand(midlet.Commands().CmdBack());
             cnvLeftLegLower.setCommandListener(midlet.CommandListener());
+            cnvLeftLegLower.setButtonListener(midlet.CommandListener());
             PainMan.Log(this.getClass(), "getCnvLeftLegLower", "cnvLeftLegLower ready");            
         }
         
@@ -245,9 +283,14 @@ public class FormManager {
             PainMan.Log(this.getClass(), "getCnvRightLegUpper", "cnvRightLegUpper empty, initializing...");
             cnvRightLegUpper = new ChildCanvas(midlet, Properties.SCREEN_RIGHTLEG_UPPER);
 //            cnvRightLegUpper.addCommand(midlet.Commands().CmdFlip());
+            cnvRightLegUpper.setFullScreenMode(true);
+            
+            addChildCanvasButtons(cnvRightLegUpper);
+            
             cnvRightLegUpper.addCommand(midlet.Commands().CmdAddPoint());
             cnvRightLegUpper.addCommand(midlet.Commands().CmdBack());
             cnvRightLegUpper.setCommandListener(midlet.CommandListener());
+            cnvRightLegUpper.setButtonListener(midlet.CommandListener());
             PainMan.Log(this.getClass(), "getCnvRightLegUpper", "cnvRightLegUpper ready");            
         }
         
@@ -265,9 +308,14 @@ public class FormManager {
             PainMan.Log(this.getClass(), "getCnvRightLegLower", "cnvRightLegLower empty, initializing...");
             cnvRightLegLower = new ChildCanvas(midlet, Properties.SCREEN_RIGHTLEG_LOWER);
 //            cnvRightLegLower.addCommand(midlet.Commands().CmdFlip());
+            cnvRightLegLower.setFullScreenMode(true);
+            
+            addChildCanvasButtons(cnvRightLegLower);
+            
             cnvRightLegLower.addCommand(midlet.Commands().CmdAddPoint());
             cnvRightLegLower.addCommand(midlet.Commands().CmdBack());
             cnvRightLegLower.setCommandListener(midlet.CommandListener());
+            cnvRightLegLower.setButtonListener(midlet.CommandListener());
             PainMan.Log(this.getClass(), "getCnvRightLegLower", "cnvRightLegLower ready");            
         }
         
@@ -341,5 +389,25 @@ public class FormManager {
                 cn.repaint();
             }
         }
+    }
+
+    /** 
+     * Common buttons for all data input screens (derived from ChildCanvas)
+     * @param cnv 
+     */
+    private void addChildCanvasButtons(ChildCanvas cnv) {
+        Button btnBack = new Button("", Button.BUTTON_BACK, cnv.getWidth()-34, cnv.getHeight()-34);                        
+        cnv.addButton(btnBack);
+        
+        Button btnAddPoint = new Button("", Button.BUTTON_ADD_ENTRY, 2, cnv.getHeight()-34);                        
+        cnv.addButton(btnAddPoint);
+        
+        Button btnCancel = new Button("", Button.BUTTON_CANCEL, cnv.getWidth()-34, cnv.getHeight()-34);
+        btnCancel.setVisible(false);
+        cnv.addButton(btnCancel);
+        
+        Button btnApply = new Button("", Button.BUTTON_APPLY, 2, cnv.getHeight()-34);                        
+        btnApply.setVisible(false);
+        cnv.addButton(btnApply);
     }
 }
