@@ -255,10 +255,9 @@ public class Button extends CustomItem {
         int x = 32*col;
         int y = 32*row;
         
-        Image icon = Image.createImage(32, 32);        
-        
-        Graphics g = icon.getGraphics();
-        g.drawImage(getIconImg(), -x, -y, Graphics.TOP | Graphics.LEFT);
+        int[] iconRGB = new int[32*32];
+        getIconImg().getRGB(iconRGB, 0, 32, x, y, 32, 32);
+        Image icon = Image.createRGBImage(iconRGB, 32, 32, true);
         
         return icon;
     }
