@@ -253,4 +253,35 @@ public class ImageUtil {
         PainMan.Log(this.getClass(), "getImgRightHand", "right side hand image from " + (isFrontside ? "front" : "back"));
         return cropImage;
     }
+    
+    private static Image icons;
+    
+    public static Image getIcon(int iconID) {        
+        
+        int row = (int)Math.ceil(iconID / 4);
+        if (row == -1) row = 0;
+        int col = (iconID)%4;
+        
+//        PainMan.Log(this.getClass(), "getIcon", "called for icon id "+iconID+", returning icon from r"+row+" c"+col);
+
+        int x = 32*col;
+        int y = 32*row;
+        
+        int[] iconRGB = new int[32*32];
+        getIconImg().getRGB(iconRGB, 0, 32, x, y, 32, 32);
+        Image icon = Image.createRGBImage(iconRGB, 32, 32, true);
+        
+        return icon;
+    }
+    
+    private static Image getIconImg() {        
+        if (icons == null) {
+            try {
+                icons = Image.createImage("/images/icons.png");
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        }
+        return icons;
+    }
 }

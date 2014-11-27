@@ -5,11 +5,10 @@
 
 package painman.screen;
 
-import java.io.IOException;
 import javax.microedition.lcdui.CustomItem;
 import javax.microedition.lcdui.Graphics;
-import javax.microedition.lcdui.Image;
-import painman.PainMan;
+import painman.ImageUtil;
+
 
 /**
  *
@@ -18,15 +17,16 @@ import painman.PainMan;
 public class Button extends CustomItem {
 
     int buttonID;
-    private Rectangle boundingBox;
+    protected Rectangle boundingBox;
     private ButtonListener listener;
-    private boolean enabled = true;
-    private boolean pressed = false;
-    private boolean selectable = true;
-    private boolean selected = false;
-    private boolean visible = true;    
+        
+    protected boolean enabled = true;
+    protected boolean pressed = false;
+    protected boolean selectable = true;
+    protected boolean selected = false;
+    protected boolean visible = true;    
     
-    Image icons;
+
     
     // Icon definitions, +1 for highlight
     public static final int BUTTON_SETTINGS = 0;
@@ -62,9 +62,31 @@ public class Button extends CustomItem {
         this.boundingBox.setY(ypos);
     }
     
+//    /**
+//     * Constructor for text only -button
+//     * @param label Button label     
+//     * @param text Text to show in button
+//     * @param font Font for drawing the text
+//     */
+//    public Button(String label, String text, Font font) {        
+//        this(label, BUTTON_TEXTONLY);
+//        this.btnText = text;
+//        if (font == null) {
+//            this.fontti = Properties.MEDIUM_FONT;
+//        }        
+//        this.boundingBox.setHeight(font.getHeight() + 2);
+//        this.boundingBox.setWidth(font.stringWidth(text) + 6);
+//        this.setPreferredSize(this.boundingBox.getWidth(), this.boundingBox.getHeight());
+//        painman.PainMan.Log(this.getClass(), "constructor", "New button with text: "+text);
+//    }
+    
     public int getID() {
         return this.buttonID;
     }
+
+
+  
+    
     
     public interface ButtonListener {
         void buttonClicked(Button button);
@@ -154,7 +176,7 @@ public class Button extends CustomItem {
     public boolean isVisible() {
         return visible;
     }
-    
+
     public int getXPos() {
         return boundingBox.getX();
     }
@@ -215,19 +237,20 @@ public class Button extends CustomItem {
 
     
     protected int getMinContentWidth() {
-        return 32;
+        return boundingBox.getWidth();
     }
 
     protected int getMinContentHeight() {
         return 32;
     }
 
-    protected int getPrefContentWidth(int height) {
-        return 32;
+    protected int getPrefContentWidth(int height) {        
+        return boundingBox.getWidth();
+        
     }
 
     protected int getPrefContentHeight(int width) {
-        return 32;
+        return boundingBox.getHeight();
     }
     
     protected void paint(Graphics g, int w, int h) {
@@ -235,123 +258,17 @@ public class Button extends CustomItem {
             return;
         }
         if (!enabled) {            
-        }
-        else if (pressed || selected) {
+        }        
+        
+        else if (pressed || selected) {          
             // +1 for highlight icon
-            g.drawImage(getIcon(buttonID+1), boundingBox.x, boundingBox.y, g.TOP|g.LEFT);
-        }else {        
-            g.drawImage(getIcon(buttonID), boundingBox.x, boundingBox.y, g.TOP|g.LEFT);
+            g.drawImage(ImageUtil.getIcon(buttonID+1), boundingBox.getX(), boundingBox.getY(), g.TOP|g.LEFT);
+        }
+        else {  
+            g.drawImage(ImageUtil.getIcon(buttonID), boundingBox.getX(), boundingBox.getY(), g.TOP|g.LEFT);
         }
     }
     
-    private Image getIcon(int iconID) {        
-        
-        int row = (int)Math.ceil(iconID / 4);
-        if (row == -1) row = 0;
-        int col = (iconID)%4;
-        
-//        PainMan.Log(this.getClass(), "getIcon", "called for icon id "+iconID+", returning icon from r"+row+" c"+col);
-
-        int x = 32*col;
-        int y = 32*row;
-        
-        int[] iconRGB = new int[32*32];
-        getIconImg().getRGB(iconRGB, 0, 32, x, y, 32, 32);
-        Image icon = Image.createRGBImage(iconRGB, 32, 32, true);
-        
-        return icon;
-    }
-    
-    private Image getIconImg() {        
-        if (icons == null) {
-            try {
-                icons = Image.createImage("/images/icons.png");
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
-        }
-        return icons;
-    }
-    
-    
-    
-    /**
-    * Class defining a rectangle
-    */
-    private class Rectangle {
-    private int x;
-    private int y;
-    private int height;
-    private int width;
-
-    /**
-     * Constructor.
-     * @param x
-     * @param y
-     * @param width
-     * @param height
-     */
-    public Rectangle(int x, int y, int width, int height) {
-        this.x = x;
-        this.y = y;
-        this.width = width;
-        this.height = height;
-    }
-
-    /**
-     * Check whether a point is inside the rectangle
-     */
-    public boolean contains(int x, int y) {
-        boolean ret = false;
-        
-        if (x >= this.x && x <= (this.x + width)) {
-            if (y >= this.y && y <= this.y + height) {
-                ret = true;
-            }
-        }
-
-        return ret;
-    }
-
-    public int getHeight() {
-        return height;
-    }
-
-    public void setHeight(int height) {
-        this.height = height;
-    }
-
-    public int getWidth() {
-        return width;
-    }
-
-    public void setWidth(int width) {
-        this.width = width;
-    }
-
-    public int getX() {
-        return x;
-    }
-
-    public void setX(int x) {
-        this.x = x;
-    }
-
-    public int getY() {
-        return y;
-    }
-
-    public void setY(int y) {
-        this.y = y;
-    }
-
-    public int getCenterX() {
-        return x + width / 2;
-    }
-
-    public int getCenterY() {
-        return y + height / 2;
-    }
-}
-
+   
+   
 }

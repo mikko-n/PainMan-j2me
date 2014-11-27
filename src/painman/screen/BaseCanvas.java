@@ -29,7 +29,7 @@ public abstract class BaseCanvas extends Canvas implements Button.ButtonListener
     protected Image image = null;
     private BodyPart data;
     private Vector buttons;
-    private CanvasButtonListener listener;
+    private CustomButtonListener listener;
     
 //    boolean IS_FRONTSIDE = true;
 //    protected boolean IS_LEFT;
@@ -80,7 +80,7 @@ public abstract class BaseCanvas extends Canvas implements Button.ButtonListener
         return SCREEN_ID;
     }
 
-    public void setButtonListener(CanvasButtonListener listener) {
+    public void setButtonListener(CustomButtonListener listener) {
         this.listener = listener;
     }
     
@@ -475,9 +475,6 @@ public abstract class BaseCanvas extends Canvas implements Button.ButtonListener
         } else {
             PainMan.Log(this.getClass(), "buttonClicked", "Button " + button.getID() + " clicked but too little time elapsed since last click ("+(System.currentTimeMillis()-lastButtonClick)+" ms)");
         }
-    }
+    }   
     
-    public interface CanvasButtonListener {
-        void buttonAction(Button button, Displayable d);
-    }
 }

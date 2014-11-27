@@ -20,6 +20,7 @@ public class CommandManager {
     private Command cmdAddPointOk;
     private Command cmdCancel;
     private Command cmdOk;
+    private Command cmdAddTag;
     
     public CommandManager() {}
     
@@ -109,5 +110,16 @@ public class CommandManager {
             cmdOk = new Command(PainMan.getUiString("Ok"), PainMan.getUiString("Ok"), Command.OK, 1);
         }
         return cmdOk;
+    }
+
+    /**
+     * Returns an initialized instance of command used to add tags
+     * @return the cmdAddTag
+     */
+    public Command CmdAddTag() {
+        if (cmdAddTag == null) {
+            cmdAddTag = new Command(PainMan.getUiString("Add"),PainMan.getUiString("Add"), Command.ITEM, 1);
+        }
+        return cmdAddTag;
     }
 }

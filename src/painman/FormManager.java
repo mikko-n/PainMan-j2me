@@ -5,8 +5,10 @@
 
 package painman;
 
+import java.io.IOException;
 import javax.microedition.lcdui.Choice;
 import javax.microedition.lcdui.Displayable;
+import javax.microedition.lcdui.Image;
 import javax.microedition.lcdui.List;
 import painman.data.Point;
 import painman.screen.BaseCanvas;
@@ -331,7 +333,8 @@ public class FormManager {
     public List getSettingsList() {
         if (listSettings == null) {
             listSettings = new List(PainMan.getUiString("Settings"), Choice.IMPLICIT);
-            listSettings.append(PainMan.getUiString("About"), null);
+            try { listSettings.append(PainMan.getUiString("About"), Image.createImage("/images/info_26.png")); } catch (IOException ex) { listSettings.append(PainMan.getUiString("About"), null); }
+//            listSettings.append(PainMan.getUiString("About"), ImageUtil.getIcon(Button.BUTTON_INFO));
             listSettings.addCommand(midlet.Commands().CmdBack());
             listSettings.setCommandListener(midlet.CommandListener());
             listSettings.setFitPolicy(Choice.TEXT_WRAP_DEFAULT);
@@ -351,6 +354,7 @@ public class FormManager {
             pointEditor.addCommand(midlet.Commands().CmdBack());
             pointEditor.addCommand(midlet.Commands().CmdOk());
             pointEditor.setCommandListener(midlet.CommandListener());
+            pointEditor.setButtonListener(midlet.CommandListener());
         }
         pointEditor.setTitle(PainMan.getUiString("Add-point"));
         return pointEditor;

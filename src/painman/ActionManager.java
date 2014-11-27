@@ -10,12 +10,15 @@ import javax.microedition.lcdui.CommandListener;
 import javax.microedition.lcdui.Displayable;
 import painman.screen.BaseCanvas;
 import painman.screen.Button;
+import painman.screen.CustomButtonListener;
+import painman.screen.PointEditorForm;
+import painman.screen.TagButton;
 
 /**
  *
  * @author NIM
  */
-public class ActionManager implements CommandListener, BaseCanvas.CanvasButtonListener {
+public class ActionManager implements CommandListener, CustomButtonListener {
 
     private PainMan midlet;
     
@@ -139,7 +142,11 @@ public class ActionManager implements CommandListener, BaseCanvas.CanvasButtonLi
     public void buttonAction(Button b, Displayable d) {
         if (d == midlet.Forms().getFrmMain()) {
             handleMainScreenButtons(b);
-        } else {
+        } 
+        else if (d == midlet.Forms().getPointEditor()) {
+            handlePointEditorButtons(b, d);
+        }
+        else {
             handleBodyPartButtons(b, d);
         }           
     }
@@ -157,8 +164,21 @@ public class ActionManager implements CommandListener, BaseCanvas.CanvasButtonLi
         }
     }
     
+    private void handlePointEditorButtons(Button b, Displayable d) {
+        PainMan.Log(this.getClass(), "handlePointEditorButtons", b.getID()+" add tag button clicked, button class: "+b.getClass());
+        if (b.getClass() == TagButton.class) {
+            PainMan.Log(this.getClass(), "handlePointEditorButtons", "tag button \""+((TagButton)b).getBtnText()+"\"clicked, removable = "+((TagButton)b).isRemovable());
+            if (b.getID() == TagButton.BUTTON_TEXTONLY && ((TagButton)b).isRemovable() == false) {
+                midlet.Forms().getPointEditor().addTag("Testi");
+            }
+            else {
+                midlet.Forms().getPointEditor().removeTag(b);
+            }
+        }
+    }
+    
     /**
-     * Handle other screens
+     * Handle other canvas based screens
      * @param b
      * @param d 
      */
